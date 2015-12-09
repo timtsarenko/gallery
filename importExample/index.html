@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"></meta>
+	<title>Three.JS experiments</title>
+	<style>
+		html, body {
+			margin: 0px;
+			padding: 0px;
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+	<script src="./three.js"></script>
+	<script>
+		var game = {
+			scene: new THREE.Scene(),
+			camera: new THREE.PerspectiveCamera(75, window.innerWidth/ window.innerHeight, 0.1, 1000),
+			renderer: new THREE.WebGLRenderer(),
+			meshGroup: new THREE.Group(),
+
+			create: function() {
+				game.renderer.setClearColor(0xffffff);
+				game.renderer.setSize(window.innerWidth, window.innerHeight);
+				document.body.appendChild( game.renderer.domElement);
+
+				game.scene.add(game.meshGroup);
+
+				game.light = new THREE.AmbientLight(0xffffff);
+				game.scene.add(game.light);
+				
+				//OBJ to JSON converter Python Tool
+				//three.js/utils/converters/obj/convert_obj_three.py
+				//python convert_obj_tree.py -i teapot.obj -o teapot.js
+				game.loader = new THREE.JSONLoader();
+				game.loader.load(".\\icosphere.json", function(geometry, materials) {
+					var materialIco = new THREE.MeshNormalMaterial();
+					game.ico = new THREE.Mesh(geometry, materialIco);
+					game.ico.position.z = -5;
+					game.meshGroup.add(game.ico);
+				});
+				
+				var geometry = new THREE.BoxGeometry (1,1,1);
+				var material = new THREE.MeshNormalMaterial();
+				var material2 = new THREE.MeshBasicMaterial({color: 0x222f2});
+				var material3 = new THREE.MeshLambertMaterial({color: 0x22f2ff});
+				var material4 = new THREE.MeshPhongMaterial({color: 0xff2222});
+
+				game.cube = new THREE.Mesh(geometry, material);
+
+				game.cube2 = new THREE.Mesh(geometry, material2);
+
+				game.cube3 = new THREE.Mesh(geometry, material3);
+
+				game.cube4 = new THREE.Mesh(geometry, material4);
+				
+				game.meshGroup.add(game.cube);
+				game.meshGroup.add(game.cube2);
+				game.meshGroup.add(game.cube3);
+				game.meshGroup.add(game.cube4);
+	
+				game.cube2.position.x = 2;
+				game.cube3.position.x = -2;
+				game.cube4.position.y = 2;
+				game.scene.add(game.meshGroup);
+
+				game.camera.position.z = 15;
+			},
+
+			render: function() {
+				requestAnimationFrame( game.render );
+				game.meshGroup.rotation.x += 0.006;
+				game.cube.rotation.y += 0.004;
+				game.renderer.render (game.scene, game.camera);
+			}
+		};
+
+
+		game.create();
+		game.render();
+
+	</script>
+</body>
+</html>
