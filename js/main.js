@@ -274,16 +274,6 @@ else {
 			///////Add Artworks~///////
 			gal.artGroup = new THREE.Group();
            
-            /*
-            gal.intersectObjects = [];
-
-            gal.intersectObjects.push(gal.wall1);
-            gal.intersectObjects.push(gal.wall2);
-            gal.intersectObjects.push(gal.wall3);
-            gal.intersectObjects.push(gal.wall4);
-            */
-
-			//*
 			gal.num_of_paintings = 30;
 			gal.paintings = [];
 			for(var i = 0; i < gal.num_of_paintings; i++){
@@ -320,12 +310,12 @@ else {
 							plane.rotation.y = Math.PI;
 						}
 						gal.scene.add(plane);
+                        gal.paintings.push(plane);
 					}
 
 					img.map.needsUpdate = true; //ADDED
 				}(i))
 			}
-			//*/
 
 		},
 		raycaster: new THREE.Raycaster(),
@@ -379,14 +369,14 @@ else {
 				gal.prevTime = currentTime;
 			}
 
-
 			//rayCaster
 			gal.raycaster.setFromCamera(gal.mouse, gal.camera);
 
 			//calculate objects interesting ray
-			var intersects = gal.raycaster.intersectObjects(gal.intersectObjects);
+			//var intersects = gal.raycaster.intersectObjects(gal.intersectObjects);
+			var intersects = gal.raycaster.intersectObjects(gal.paintings);
 			if(intersects.length !== 0) {
-                //intersects[0].object.material.color.set(0xaaeeee);
+                intersects[0].object.material.color.set(0xaaeeee);
 				//console.log(intersects[0].distance);
 				console.log(intersects[0].point);
 			}
