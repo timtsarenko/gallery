@@ -5,19 +5,39 @@
 		
 		<title>The Gallery</title>
 		
+        <link href='https://fonts.googleapis.com/css?family=Lato|Oswald' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" href="./css/index.css" media="screen" />
 
-		<script src="js/three.js"></script>
-		<script src="js/Detector.js"></script> 
-		<script src="js/PointerLockControls.js"></script>
-		<script src="js/Projector.js"></script>
+		<script type="text/javascript" src="js/three.js"></script>
+		<script type="text/javascript" src="js/Detector.js"></script> 
+		<script type="text/javascript" src="js/PointerLockControls.js"></script>
+		<script type="text/javascript" src="js/Projector.js"></script>
 </head>
 <body>
+<div id="background_menu"></div>
 <div id="menu">
-	<p> Welcome. Bienvenue. </p>
+	<div id="img_container">
+		<img src="./img/ReallyDoe.jpg">
+	</div>
+	<div id="content">
+		<h1>GALLERY</h1>
+        <div>
+            <p>A 3D Gallery in your browser.</p>
+            <p>An immersive experience in Art.</p>
+        </div>
+        <div>
+            <p>Main Controls:</p>
+            <p>W,A,S,D, Arrow Keys = Move Around</p>
+            <p>Mouse = Look Around</p>
+            <p>Spacebar = Jump</p>
+        </div>
+		<div id="play_button">
+			<p>PLAY</p>
+		</div>
+	</div>
 </div>
 
-<script src="js/main.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
 </body>
 </html>
 

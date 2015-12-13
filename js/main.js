@@ -43,6 +43,10 @@ else {
 			gal.canvas = document.querySelector('canvas');
 			gal.canvas.className = "gallery";
 
+            //Clicking on either of these will start the game
+            gal.bgMenu = document.querySelector('#background_menu');
+            gal.play = document.querySelector('#play_button');
+
 			//enabling/disabling menu based on pointer controls
 			gal.menu = document.getElementById("menu");
 
@@ -99,6 +103,12 @@ else {
 				gal.canvas.addEventListener("click", function() {
 					gal.canvas.requestPointerLock();
 				});
+                gal.bgMenu.addEventListener("click", function() {
+					gal.canvas.requestPointerLock();
+                });
+                gal.play.addEventListener("click", function() {
+					gal.canvas.requestPointerLock();
+                });
 				
 				//pointer lock state change listener
 				document.addEventListener('pointerlockchange', gal.changeCallback, false);
@@ -121,6 +131,7 @@ else {
 				gal.controls.enabled = true;
 				//remove menu element from screen
 				gal.menu.className += " hide";
+                gal.bgMenu.className += " hide";
 				//start mouse move listener
 				document.addEventListener("mousemove", gal.moveCallback, false);
 				
@@ -129,6 +140,7 @@ else {
 				gal.controls.enabled = false;
 				//remove hidden property from menu
 				gal.menu.className = gal.menu.className.replace(/(?:^|\s)hide(?!\S)/g, '');
+				gal.bgMenu.className = gal.bgMenu.className.replace(/(?:^|\s)hide(?!\S)/g, '');
 				document.removeEventListener("mousemove", gal.moveCallback, false);
 			}
 		},
@@ -278,23 +290,42 @@ else {
 
 			gal.scene.add(gal.ceil);
 
+
+
+            ///////Add 3D imported Objects ////
+            /*
+            gal.objects = [];
+            //OBJ to JSON converter Python Tool
+            //three.js/utils/converters/obj/convert_obj_three.py
+            //python convert_obj_tree.py -i teapot.obj -o teapot.js
+            gal.loader = new THREE.JSONLoader();
+            gal.loader.load(".\\objects\\icosphere.json", function(geometry, materials) {
+                var materialIco = new THREE.MeshNormalMaterial();
+                gal.ico = new THREE.Mesh(geometry, materialIco);
+                gal.ico.position.y = 2;
+                gal.ico.position.x = 18;
+                gal.ico.scale.set(0.25, 0.25, 0.25);
+                gal.scene.add(gal.ico);
+                gal.objects.push(gal.ico);
+            });
+            */
+            /* Process for importing more objects is pretty straight forward
+            gal.loader.load(".\\objects\\icosphere.json", function(geometry, materials) {
+                var materialIco = new THREE.MeshNormalMaterial();
+                gal.ico2 = new THREE.Mesh(geometry, materialIco);
+                gal.ico2.position.x = 1;
+                gal.scene.add(gal.ico2);
+            });
+            */
+
 			///////Add Artworks~///////
 			gal.artGroup = new THREE.Group();
            
-            /*
-            gal.intersectObjects = [];
-
-            gal.intersectObjects.push(gal.wall1);
-            gal.intersectObjects.push(gal.wall2);
-            gal.intersectObjects.push(gal.wall3);
-            gal.intersectObjects.push(gal.wall4);
-            */
-
-			//*
 			gal.num_of_paintings = 30;
 			gal.paintings = [];
 			for(var i = 0; i < gal.num_of_paintings; i++){
 				(function(index) {
+                    //https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/Image
 					var artwork = new Image();
 					var ratiow = 0;
 					var ratioh = 0;
@@ -302,10 +333,11 @@ else {
                     // ./img/Artwork/index.jpg
 					var source = './img/Artworks/' + (index).toString() + '.jpg';
 					artwork.src = source;
+                    
+                    var texture = THREE.ImageUtils.loadTexture(artwork.src);
+                    texture.minFilter = THREE.LinearFilter;
 
-					var img = new THREE.MeshBasicMaterial({ 
-					map:THREE.ImageUtils.loadTexture(artwork.src)
-					});
+					var img = new THREE.MeshBasicMaterial({ map: texture });
 
 					artwork.onload = function(){
 						ratiow = artwork.width/300;
@@ -327,12 +359,12 @@ else {
 							plane.rotation.y = Math.PI;
 						}
 						gal.scene.add(plane);
+                        gal.paintings.push(plane);
 					}
 
 					img.map.needsUpdate = true; //ADDED
 				}(i))
 			}
-			//*/
 
 		},
 		raycaster: new THREE.Raycaster(),
@@ -345,6 +377,7 @@ else {
 		render: function() {
 			requestAnimationFrame(gal.render);
 
+            ////Movement Controls /////
 			if(gal.controls.enabled === true) {
 				var currentTime = performance.now(); //returns time in milliseconds
 				//accurate to the thousandth of a millisecond
@@ -386,20 +419,22 @@ else {
 				gal.prevTime = currentTime;
 			}
 
-
-			//rayCaster
+			////rayCaster/////
 			gal.raycaster.setFromCamera(gal.mouse, gal.camera);
 
 			//calculate objects interesting ray
-			var intersects = gal.raycaster.intersectObjects(gal.intersectObjects);
+			//var intersects = gal.raycaster.intersectObjects(gal.intersectObjects);
+			var intersects = gal.raycaster.intersectObjects(gal.paintings);
 			if(intersects.length !== 0) {
-                //intersects[0].object.material.color.set(0xaaeeee);
+                intersects[0].object.material.color.set(0xaaeeee);
 				//console.log(intersects[0].distance);
 				console.log(intersects[0].point);
 			}
 
+
+
 			gal.renderer.render(gal.scene, gal.camera);
-			}
+        }
 	};
 
 	gal.boot();
