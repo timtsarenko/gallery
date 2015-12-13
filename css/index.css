@@ -6,15 +6,27 @@ html, body {
     margin: 0em;
 }
 
-* {
-	vertical-align: top;
-}
-
 body {
 	margin: 0em;
 	padding: 0em;
 	overflow: hidden;
-	font-family: Arial, "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-family: "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+}
+
+p, img, div, canvas {
+	vertical-align: top;
+}
+
+::-moz-selection {
+    background: #34495e;
+    background-color: #34495e;
+    color: #FFF;
+}
+
+::selection {
+    background: #34495e;
+    background-color: #34495e;
+    color: #FFF;
 }
 
 .hide {
@@ -38,18 +50,14 @@ body {
 	opacity: 1;
 
 	background: #ffffff;
-    background: -moz-linear-gradient(top,  #ffffff 0%, #ffffff 50%, #f2f2f2 100%);
-    background: -webkit-linear-gradient(top,  #ffffff 0%,#ffffff 50%,#f2f2f2 100%);
-    background: linear-gradient(to bottom,  #ffffff 0%,#ffffff 50%,#f2f2f2 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#f2f2f2',GradientType=0 );
 
-	-webkit-box-shadow: 0px 3px 16px rgba(124,124,124, 0.5);
-	-moz-box-shadow: 0px 3px 16px rgba(124,124,124, 0.5);
-	box-shadow: 0px 3px 16px rgba(124,124,124, 0.5);
+	-webkit-box-shadow: 0em 0.25em .75em rgba(124,124,124, 0.5);
+	-moz-box-shadow: 0em 0.25em .75em rgba(124,124,124, 0.5);
+	box-shadow: 0em 0.25em .75em rgba(124,124,124, 0.5);
 }
 
 	#menu #img_container {
-		height: 15em;
+		height: 14.5em;
 
 		display: flex;
 		justify-content: center;
@@ -69,8 +77,13 @@ body {
 		padding: .5em;
 	}
 
+    #menu #content div {
+        margin-bottom: 1em;
+    }
+
     #menu h1 {
         font-family: 'Oswald';
+        letter-spacing: .25em;
     }
 
     #menu p {
@@ -91,15 +104,21 @@ body {
 	}
 
 	#menu #play_button:hover {
-		border: solid #A8A8AF .1em;
+		border: solid #A8A8AF 1px;
 		color: #A8A8AF;
 		cursor: pointer;
 	}
 
 		#menu #play_button p {
-			font-size: 1.45em;
+            font-family: 'Oswald';
+            letter-spacing: .125em;
+            color: #48484F;
+			font-size: 1.3em;
 		}
 
+        #menu #play_button:hover p {
+            color: #A8A8AF;
+        }
 
 #background_menu {
     position: absolute;

@@ -43,6 +43,10 @@ else {
 			gal.canvas = document.querySelector('canvas');
 			gal.canvas.className = "gallery";
 
+            //Clicking on either of these will start the game
+            gal.bgMenu = document.querySelector('#background_menu');
+            gal.play = document.querySelector('#play_button');
+
 			//enabling/disabling menu based on pointer controls
 			gal.menu = document.getElementById("menu");
 
@@ -99,6 +103,12 @@ else {
 				gal.canvas.addEventListener("click", function() {
 					gal.canvas.requestPointerLock();
 				});
+                gal.bgMenu.addEventListener("click", function() {
+					gal.canvas.requestPointerLock();
+                });
+                gal.play.addEventListener("click", function() {
+					gal.canvas.requestPointerLock();
+                });
 				
 				//pointer lock state change listener
 				document.addEventListener('pointerlockchange', gal.changeCallback, false);
@@ -121,6 +131,7 @@ else {
 				gal.controls.enabled = true;
 				//remove menu element from screen
 				gal.menu.className += " hide";
+                gal.bgMenu.className += " hide";
 				//start mouse move listener
 				document.addEventListener("mousemove", gal.moveCallback, false);
 				
@@ -129,6 +140,7 @@ else {
 				gal.controls.enabled = false;
 				//remove hidden property from menu
 				gal.menu.className = gal.menu.className.replace(/(?:^|\s)hide(?!\S)/g, '');
+				gal.bgMenu.className = gal.bgMenu.className.replace(/(?:^|\s)hide(?!\S)/g, '');
 				document.removeEventListener("mousemove", gal.moveCallback, false);
 			}
 		},
@@ -281,6 +293,7 @@ else {
 
 
             ///////Add 3D imported Objects ////
+            /*
             gal.objects = [];
             //OBJ to JSON converter Python Tool
             //three.js/utils/converters/obj/convert_obj_three.py
@@ -295,7 +308,7 @@ else {
                 gal.scene.add(gal.ico);
                 gal.objects.push(gal.ico);
             });
-
+            */
             /* Process for importing more objects is pretty straight forward
             gal.loader.load(".\\objects\\icosphere.json", function(geometry, materials) {
                 var materialIco = new THREE.MeshNormalMaterial();
