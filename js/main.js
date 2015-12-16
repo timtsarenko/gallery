@@ -437,6 +437,16 @@ else {
 				gal.prevTime = currentTime;
                 gal.renderer.render(gal.scene, gal.camera);
 			}
+			else {
+					//if game is paused, reset the velocity vectors
+					//so that the player is not translated when game is resumed
+					gal.moveVelocity.z = 0.0;
+					gal.moveVelocity.x = 0.0;
+
+					//it may be the case that resetting deltaTime is a better choice
+					//as this means anything dependent of deltaT will not result in
+					//bugs when the player pauses the game
+			}
 
             if(gal.initialRender === true) {
                 gal.renderer.render(gal.scene, gal.camera);
