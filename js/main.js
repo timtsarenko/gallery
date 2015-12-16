@@ -30,6 +30,8 @@ else {
 		renderer: new THREE.WebGLRenderer({antialias: false}),
 
 		boot: function() {
+            gal.initialRender = true;
+
 			gal.controls = new THREE.PointerLockControls(gal.camera);
 			gal.scene.add( gal.controls.getObject());
 
@@ -100,9 +102,11 @@ else {
 				ESC key -> "pointerlockchange" -> gl.changeCallback -> unlocked
 				now listen to when the canvas is clicked on
 				*/
+                /* Following is unclickable since it's covered by bgMenu div
 				gal.canvas.addEventListener("click", function() {
 					gal.canvas.requestPointerLock();
 				});
+                */
                 gal.bgMenu.addEventListener("click", function() {
 					gal.canvas.requestPointerLock();
                 });
@@ -224,7 +228,7 @@ else {
 			gal.scene.add(gal.worldLight);
 
             //set the floor up
-            gal.floorText = THREE.ImageUtils.loadTexture("img/Floor.jpg");
+            gal.floorText = THREE.ImageUtils.loadTexture("img/Textures/Floor.jpg");
             gal.floorText.wrapS = THREE.RepeatWrapping;
             gal.floorText.wrapT = THREE.RepeatWrapping;
             gal.floorText.repeat.set(24,24);
@@ -379,6 +383,7 @@ else {
 
             ////Movement Controls /////
 			if(gal.controls.enabled === true) {
+                gal.initialRender = false;
 				var currentTime = performance.now(); //returns time in milliseconds
 				//accurate to the thousandth of a millisecond
 				//want to get the most accurate and smallest change in time
@@ -416,24 +421,36 @@ else {
 						gal.controls.getObject().position.y = 1.75;
 				}
 
+                /*//rayCaster/////
+                gal.raycaster.setFromCamera(gal.mouse, gal.camera);
+
+                //calculate objects interesting ray
+                //var intersects = gal.raycaster.intersectObjects(gal.intersectObjects);
+                var intersects = gal.raycaster.intersectObjects(gal.paintings);
+                if(intersects.length !== 0) {
+                    intersects[0].object.material.color.set(0xaaeeee);
+                    //console.log(intersects[0].distance);
+                    console.log(intersects[0].point);
+                }
+                */
+
 				gal.prevTime = currentTime;
+                gal.renderer.render(gal.scene, gal.camera);
+			}
+			else {
+					//if game is paused, reset the velocity vectors
+					//so that the player is not translated when game is resumed
+					gal.moveVelocity.z = 0.0;
+					gal.moveVelocity.x = 0.0;
+
+					//it may be the case that resetting deltaTime is a better choice
+					//as this means anything dependent of deltaT will not result in
+					//bugs when the player pauses the game
 			}
 
-			////rayCaster/////
-			gal.raycaster.setFromCamera(gal.mouse, gal.camera);
-
-			//calculate objects interesting ray
-			//var intersects = gal.raycaster.intersectObjects(gal.intersectObjects);
-			var intersects = gal.raycaster.intersectObjects(gal.paintings);
-			if(intersects.length !== 0) {
-                intersects[0].object.material.color.set(0xaaeeee);
-				//console.log(intersects[0].distance);
-				console.log(intersects[0].point);
-			}
-
-
-
-			gal.renderer.render(gal.scene, gal.camera);
+            if(gal.initialRender === true) {
+                gal.renderer.render(gal.scene, gal.camera);
+            }
         }
 	};
 

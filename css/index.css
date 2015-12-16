@@ -94,19 +94,21 @@ p, img, div, canvas {
 	#menu #play_button {
 		display: inline-block;
 		border-radius: .9em;
-		border: solid #28282F .1em;
+		border: solid #48484F .1em;
 		padding-left: 1.5em;
 		padding-right: 1.5em;
 		padding-top: .12em;
 		padding-bottom: .12em;
 
 		margin-bottom: 1.5em;
+        transition: all .4s;
 	}
 
 	#menu #play_button:hover {
-		border: solid #A8A8AF 1px;
+		border: solid #A8A8AF .1em;
 		color: #A8A8AF;
 		cursor: pointer;
+        transition: all .4s;
 	}
 
 		#menu #play_button p {
@@ -114,10 +116,12 @@ p, img, div, canvas {
             letter-spacing: .125em;
             color: #48484F;
 			font-size: 1.3em;
+            transition: all .4s;
 		}
 
         #menu #play_button:hover p {
             color: #A8A8AF;
+            transition: all .4s;
         }
 
 #background_menu {
