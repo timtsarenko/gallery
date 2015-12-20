@@ -48,9 +48,13 @@ else {
             gal.user = new THREE.Mesh(gal.userBoxGeo, gal.userBoxMat);
 
             //eventually, hide the object collider from view
-            //gal.user.visible = false;
-            //make our collision object a child of the camera
+            gal.user.visible = false;
             
+            gal.userBBox = new THREE.Box3();
+            gal.userHBox = new THREE.BoundingBoxHelper(gal.user, 0xffaaaa);
+            gal.scene.add(gal.userHBox);
+
+            //make our collision object a child of the camera
             gal.camera.add(gal.user);
 
 			gal.controls = new THREE.PointerLockControls(gal.camera);
@@ -268,10 +272,10 @@ else {
 			gal.wallMaterial3 = new THREE.MeshLambertMaterial({color: 0xffffff});
 			gal.wallMaterial4 = new THREE.MeshLambertMaterial({color: 0xffffff});
 			//consider BufferGeometry for static objects in the future
-			gal.wall1 = new THREE.Mesh(new THREE.BoxGeometry(40,6, .001), gal.wallMaterial1);
-			gal.wall2 = new THREE.Mesh(new THREE.BoxGeometry(6,6, .001), gal.wallMaterial2);
-			gal.wall3 = new THREE.Mesh(new THREE.BoxGeometry(6,6,.001), gal.wallMaterial3);
-			gal.wall4 = new THREE.Mesh(new THREE.BoxGeometry(40,6,.001), gal.wallMaterial4);
+			gal.wall1 = new THREE.Mesh(new THREE.BoxGeometry(40,6, 0.001), gal.wallMaterial1);
+			gal.wall2 = new THREE.Mesh(new THREE.BoxGeometry(6,6, 0.001), gal.wallMaterial2);
+			gal.wall3 = new THREE.Mesh(new THREE.BoxGeometry(6,6, 0.001), gal.wallMaterial3);
+			gal.wall4 = new THREE.Mesh(new THREE.BoxGeometry(40,6, 0.001), gal.wallMaterial4);
 
 			gal.wall1.position.z = -3;
 
@@ -302,7 +306,18 @@ else {
             */
 
 			gal.wallGroup.position.y = 3;
+           
+            gal.wall1BBox = new THREE.Box3();
+            gal.wall1BBox.setFromObject(gal.wall1);
 
+            gal.wall2BBox = new THREE.Box3();
+            gal.wall2BBox.setFromObject(gal.wall2);
+
+            gal.wall1HBox = new THREE.BoundingBoxHelper(gal.wall1, 0xffaaaa);
+            gal.scene.add(gal.wall1HBox);
+            
+            gal.wall2HBox = new THREE.BoundingBoxHelper(gal.wall2, 0xffaaaa);
+            gal.scene.add(gal.wall2HBox);
 			//Ceiling//
 			//gal.ceilMaterial = new THREE.MeshLambertMaterial({color: 0x8DB8A7});
 			gal.ceilMaterial = new THREE.MeshLambertMaterial({color: 0xeeeeee});
@@ -438,7 +453,19 @@ else {
                 }
                 */
 
+                gal.wall1HBox.update();
+                gal.wall2HBox.update();
+                gal.userHBox.update();
+                gal.userBBox.setFromObject(gal.user);
+                if(gal.wall1BBox.isIntersectionBox(gal.userBBox)){
+                    gal.wall1.material.color.set(0xaabbbb);
+                }
+                else {
+                    gal.wall1.material.color.set(0xffffff);
+                }
+
 				gal.prevTime = currentTime;
+
                 gal.renderer.render(gal.scene, gal.camera);
 			}
 			else {
@@ -448,6 +475,7 @@ else {
 			}
 
             if(gal.initialRender === true) {
+                gal.wall1BBox.setFromObject(gal.wall1);
                 gal.renderer.render(gal.scene, gal.camera);
             }
         }
