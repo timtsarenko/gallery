@@ -10,6 +10,9 @@ else {
 			gal.scene.fog;
 		gal.camera;
 		gal.renderer;
+		gal.raycaster;
+		gal.mouse;
+		gal.raycastSetUp;
 		gal.boot;
 			gal.controls;
 			gal.canvas;
@@ -20,17 +23,35 @@ else {
 			gal.toggleFullScreen;
 		gal.movement;
 		gal.create;
-		gal.raycaster;
-		gal.mouse;
-		gal.raycastSetUp;
 		gal.render;
 		*/
 		scene: new THREE.Scene(),
 		camera: new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000),
 		renderer: new THREE.WebGLRenderer({antialias: false}),
-
+		raycaster: new THREE.Raycaster(),
+		mouse: new THREE.Vector2(),
+		raycastSetUp: function() {
+			gal.mouse.x = (0.5) * 2 - 1;
+			gal.mouse.y = (0.5) * 2 + 1;
+		},
+		
 		boot: function() {
+			//renderer time delta
+			gal.prevTime = performance.now();
+
             gal.initialRender = true;
+            
+            //For user object collisions
+            gal.intersectObjects = [];
+            gal.userBoxGeo = new THREE.BoxGeometry(2,1,2);
+            gal.userBoxMat = new THREE.MeshBasicMaterial({color: 0xeeee99, wireframe: true});
+            gal.user = new THREE.Mesh(gal.userBoxGeo, gal.userBoxMat);
+
+            //eventually, hide the object collider from view
+            //gal.user.visible = false;
+            //make our collision object a child of the camera
+            
+            gal.camera.add(gal.user);
 
 			gal.controls = new THREE.PointerLockControls(gal.camera);
 			gal.scene.add( gal.controls.getObject());
@@ -59,9 +80,6 @@ else {
 			gal.moveBackward = false;
 			gal.moveLeft = false;
 			gal.moveRight = false;
-
-			//renderer time delta
-			gal.prevTime = performance.now();
 
 			//Resize if window size change!
 			window.addEventListener('resize', function() {
@@ -250,10 +268,10 @@ else {
 			gal.wallMaterial3 = new THREE.MeshLambertMaterial({color: 0xffffff});
 			gal.wallMaterial4 = new THREE.MeshLambertMaterial({color: 0xffffff});
 			//consider BufferGeometry for static objects in the future
-			gal.wall1 = new THREE.Mesh(new THREE.PlaneGeometry(40,6), gal.wallMaterial1);
-			gal.wall2 = new THREE.Mesh(new THREE.PlaneGeometry(6,6), gal.wallMaterial2);
-			gal.wall3 = new THREE.Mesh(new THREE.PlaneGeometry(6,6), gal.wallMaterial3);
-			gal.wall4 = new THREE.Mesh(new THREE.PlaneGeometry(40,6), gal.wallMaterial4);
+			gal.wall1 = new THREE.Mesh(new THREE.BoxGeometry(40,6, .001), gal.wallMaterial1);
+			gal.wall2 = new THREE.Mesh(new THREE.BoxGeometry(6,6, .001), gal.wallMaterial2);
+			gal.wall3 = new THREE.Mesh(new THREE.BoxGeometry(6,6,.001), gal.wallMaterial3);
+			gal.wall4 = new THREE.Mesh(new THREE.BoxGeometry(40,6,.001), gal.wallMaterial4);
 
 			gal.wall1.position.z = -3;
 
@@ -276,12 +294,12 @@ else {
 			gal.wallGroup.add(gal.wall3);
 			gal.wallGroup.add(gal.wall4);
     
-            gal.intersectObjects = [];
-
-            gal.intersectObjects.push(gal.wall1);
-            gal.intersectObjects.push(gal.wall2);
-            gal.intersectObjects.push(gal.wall3);
-            gal.intersectObjects.push(gal.wall4);
+            /*
+            gal.intersectObjects.push(gal.wall1.userData.collider);
+            gal.intersectObjects.push(gal.wall2.userData.collider);
+            gal.intersectObjects.push(gal.wall3.userData.collider);
+            gal.intersectObjects.push(gal.wall4.userData.collider);
+            */
 
 			gal.wallGroup.position.y = 3;
 
@@ -293,8 +311,6 @@ else {
 			gal.ceil.rotation.x = Math.PI/2;
 
 			gal.scene.add(gal.ceil);
-
-
 
             ///////Add 3D imported Objects ////
             /*
@@ -334,13 +350,11 @@ else {
 					var ratiow = 0;
 					var ratioh = 0;
 
-                    // ./img/Artwork/index.jpg
 					var source = './img/Artworks/' + (index).toString() + '.jpg';
 					artwork.src = source;
                     
                     var texture = THREE.ImageUtils.loadTexture(artwork.src);
                     texture.minFilter = THREE.LinearFilter;
-
 					var img = new THREE.MeshBasicMaterial({ map: texture });
 
 					artwork.onload = function(){
@@ -359,7 +373,7 @@ else {
 						{
 							//plane.rotation.z = Math.PI/2;
                             plane.position.set(2.5 * index - 55 ,2 ,2.96);
-						//	plane.position.set(65*i - 75*Math.floor(gal.num_of_paintings/2) - 15*Math.floor(num_of_paintings/2), 48, 90);
+                            //plane.position.set(65*i - 75*Math.floor(gal.num_of_paintings/2) - 15*Math.floor(num_of_paintings/2), 48, 90);
 							plane.rotation.y = Math.PI;
 						}
 						gal.scene.add(plane);
@@ -369,15 +383,7 @@ else {
 					img.map.needsUpdate = true; //ADDED
 				}(i))
 			}
-
 		},
-		raycaster: new THREE.Raycaster(),
-		mouse: new THREE.Vector2(),
-		raycastSetUp: function() {
-			gal.mouse.x = (0.5) * 2 - 1;
-			gal.mouse.y = (0.5) * 2 + 1;
-		},
-		
 		render: function() {
 			requestAnimationFrame(gal.render);
 
@@ -417,7 +423,6 @@ else {
 				if(gal.controls.getObject().position.y < 1.75) {
 						gal.jump = true;
 						gal.moveVelocity.y = 0;
-
 						gal.controls.getObject().position.y = 1.75;
 				}
 
@@ -425,7 +430,6 @@ else {
                 gal.raycaster.setFromCamera(gal.mouse, gal.camera);
 
                 //calculate objects interesting ray
-                //var intersects = gal.raycaster.intersectObjects(gal.intersectObjects);
                 var intersects = gal.raycaster.intersectObjects(gal.paintings);
                 if(intersects.length !== 0) {
                     intersects[0].object.material.color.set(0xaaeeee);
@@ -438,14 +442,9 @@ else {
                 gal.renderer.render(gal.scene, gal.camera);
 			}
 			else {
-					//if game is paused, reset the velocity vectors
-					//so that the player is not translated when game is resumed
-					gal.moveVelocity.z = 0.0;
-					gal.moveVelocity.x = 0.0;
-
-					//it may be the case that resetting deltaTime is a better choice
-					//as this means anything dependent of deltaT will not result in
-					//bugs when the player pauses the game
+                    //reset delta time, so when unpausing, time elapsed during pause
+                    //doesn't affect any variables dependent on time.
+                    gal.prevTime = performance.now();
 			}
 
             if(gal.initialRender === true) {
