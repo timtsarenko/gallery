@@ -39,20 +39,23 @@ else {
 			gal.prevTime = performance.now();
 
             gal.initialRender = true;
-            
-            //For user object collisions, array of 3dObjects that collide with child property
-            //of Bounding Box within them
-            gal.collisions = [];
+
+			gal.scene.fog = new THREE.FogExp2(0x666666, 0.025);
+
+			gal.renderer.setSize(window.innerWidth, window.innerHeight);
+			gal.renderer.setClearColor(0xffffff, 1);
+			document.body.appendChild(gal.renderer.domElement);
 
             gal.userBoxGeo = new THREE.BoxGeometry(2,1,2);
             gal.userBoxMat = new THREE.MeshBasicMaterial({color: 0xeeee99, wireframe: true});
             gal.user = new THREE.Mesh(gal.userBoxGeo, gal.userBoxMat);
 
-            gal.collisions.push(gal.user);
-            //eventually, hide the object collider from view
+            //invisible since this will solely be used to determine the size
+            //of the bounding box of our boxcollider for the user
             gal.user.visible = false;
             
-
+            //making Bounding Box and HelperBox
+            //boundingbox is used for collisions, Helper box just makes it easier to debug 
             gal.user.BBox = new THREE.Box3();
             gal.user.HBox = new THREE.BoundingBoxHelper(gal.user, 0xffaaaa);
             gal.scene.add(gal.user.HBox);
@@ -63,11 +66,8 @@ else {
 			gal.controls = new THREE.PointerLockControls(gal.camera);
 			gal.scene.add( gal.controls.getObject());
 
-			gal.scene.fog = new THREE.FogExp2(0x666666, 0.025);
-			
-			gal.renderer.setSize(window.innerWidth, window.innerHeight);
-			gal.renderer.setClearColor(0xffffff, 1);
-			document.body.appendChild(gal.renderer.domElement);
+            gal.pastX = gal.controls.getObject().position.x;
+            gal.pastZ = gal.controls.getObject().position.z;
 
 			//https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector
 			gal.canvas = document.querySelector('canvas');
@@ -270,62 +270,29 @@ else {
 			gal.wallGroup = new THREE.Group();
 			gal.scene.add(gal.wallGroup);
 
-			gal.wallMaterial1 = new THREE.MeshLambertMaterial({color: 0xffffff});
-			gal.wallMaterial2 = new THREE.MeshLambertMaterial({color: 0xffffff});
-			gal.wallMaterial3 = new THREE.MeshLambertMaterial({color: 0xffffff});
-			gal.wallMaterial4 = new THREE.MeshLambertMaterial({color: 0xffffff});
-			//consider BufferGeometry for static objects in the future
-			gal.wall1 = new THREE.Mesh(new THREE.BoxGeometry(40,6, 0.001), gal.wallMaterial1);
-			gal.wall2 = new THREE.Mesh(new THREE.BoxGeometry(6,6, 0.001), gal.wallMaterial2);
-			gal.wall3 = new THREE.Mesh(new THREE.BoxGeometry(6,6, 0.001), gal.wallMaterial3);
-			gal.wall4 = new THREE.Mesh(new THREE.BoxGeometry(40,6, 0.001), gal.wallMaterial4);
+			gal.wall1 = new THREE.Mesh(new THREE.BoxGeometry(40,6, 0.001), new THREE.MeshLambertMaterial({color: 0xffffff}));
+			gal.wall2 = new THREE.Mesh(new THREE.BoxGeometry(6,6, 0.001), new THREE.MeshLambertMaterial({color: 0xffffff}));
+			gal.wall3 = new THREE.Mesh(new THREE.BoxGeometry(6,6, 0.001), new THREE.MeshLambertMaterial({color: 0xffffff}));
+			gal.wall4 = new THREE.Mesh(new THREE.BoxGeometry(40,6, 0.001), new THREE.MeshLambertMaterial({color: 0xffffff}));
+
+			gal.wallGroup.add(gal.wall1, gal.wall2, gal.wall3, gal.wall4);
+			gal.wallGroup.position.y = 3;
 
 			gal.wall1.position.z = -3;
-
 			gal.wall2.position.x = -20;
 			gal.wall2.rotation.y = Math.PI/2;
-			
 			gal.wall3.position.x = 20;
 			gal.wall3.rotation.y = -Math.PI/2;
-
 			gal.wall4.position.z = 3;
 			gal.wall4.rotation.y = Math.PI;
 
-			gal.wall1.name = "longWall1";
-			gal.wall2.name = "shortWall1";
-			gal.wall3.name = "shortWall2";
-			gal.wall4.name = "longWall2";
+            for(var i = 0; i < gal.wallGroup.children.length; i++) {
+                gal.wallGroup.children[i].BBox = new THREE.Box3();
+                gal.wallGroup.children[i].BBox.setFromObject(gal.wallGroup.children[i]);
+                gal.wallGroup.children[i].HBox = new THREE.BoundingBoxHelper(gal.wallGroup.children[i], 0xffaaaa);
+                gal.scene.add(gal.wallGroup.children[i].HBox);
+            }
 
-			gal.wallGroup.add(gal.wall1);
-			gal.wallGroup.add(gal.wall2);
-			gal.wallGroup.add(gal.wall3);
-			gal.wallGroup.add(gal.wall4);
-    
-			gal.wallGroup.position.y = 3;
-           
-            gal.wall1.BBox = new THREE.Box3();
-            gal.wall1.BBox.setFromObject(gal.wall1);
-
-            gal.wall2.BBox = new THREE.Box3();
-            gal.wall2.BBox.setFromObject(gal.wall2);
-            
-            gal.wall3.BBox = new THREE.Box3();
-            gal.wall3.BBox.setFromObject(gal.wall3);
-
-            gal.wall4.BBox = new THREE.Box3();
-            gal.wall4.BBox.setFromObject(gal.wall4);
-
-            gal.wall1.HBox = new THREE.BoundingBoxHelper(gal.wall1, 0xffaaaa);
-            gal.scene.add(gal.wall1.HBox);
-            
-            gal.wall2.HBox = new THREE.BoundingBoxHelper(gal.wall2, 0xffaaaa);
-            gal.scene.add(gal.wall2.HBox);
-            
-            gal.wall3.HBox = new THREE.BoundingBoxHelper(gal.wall3, 0xffaaaa);
-            gal.scene.add(gal.wall3.HBox);
-            
-            gal.wall4.HBox = new THREE.BoundingBoxHelper(gal.wall4, 0xffaaaa);
-            gal.scene.add(gal.wall4.HBox);
 			//Ceiling//
 			//gal.ceilMaterial = new THREE.MeshLambertMaterial({color: 0x8DB8A7});
 			gal.ceilMaterial = new THREE.MeshLambertMaterial({color: 0xeeeeee});
@@ -461,37 +428,36 @@ else {
                 }
                 */
 
-                gal.wall1.HBox.update();
-                gal.wall2.HBox.update();
-                gal.wall3.HBox.update();
-                gal.wall4.HBox.update();
+                for(var i = 0; i < gal.wallGroup.children.length; i++) {
+                    gal.wallGroup.children[i].HBox.update();
+
+                    if(gal.user.BBox.isIntersectionBox(gal.wallGroup.children[i].BBox)){
+                        gal.wallGroup.children[i].material.color.set(0xaabbbb);
+        
+                        gal.controls.getObject().position.x = 0;
+                        gal.controls.getObject().position.z = 0;
+                        /*
+                        gal.controls.getObject().translateX(-(delta * gal.moveVelocity.x));
+                        gal.controls.getObject().translateZ(-(delta * gal.moveVelocity.z));
+                        
+                        gal.moveVelocity.x = 0;
+                        gal.moveVelocity.z = 0;
+                        
+                        gal.user.HBox.update();
+                        gal.user.BBox.setFromObject(gal.user);
+                        */
+
+                    }
+                    else {
+                        gal.wallGroup.children[i].material.color.set(0xffffff);
+                    }
+                }
+                gal.pastX = gal.controls.getObject().position.x;
+                gal.pastZ = gal.controls.getObject().position.z;
+
                 gal.user.HBox.update();
                 gal.user.BBox.setFromObject(gal.user);
-                if(gal.user.BBox.isIntersectionBox(gal.wall1.BBox)){
-                    gal.wall1.material.color.set(0xaabbbb);
-                }
-                else {
-                    gal.wall1.material.color.set(0xffffff);
-                }
 
-                if(gal.user.BBox.isIntersectionBox(gal.wall2.BBox)){
-                    gal.wall2.material.color.set(0xaabbbb);
-                }
-                else {
-                    gal.wall2.material.color.set(0xffffff);
-                }
-                if(gal.user.BBox.isIntersectionBox(gal.wall3.BBox)){
-                    gal.wall3.material.color.set(0xaabbbb);
-                }
-                else {
-                    gal.wall3.material.color.set(0xffffff);
-                }
-                if(gal.user.BBox.isIntersectionBox(gal.wall4.BBox)){
-                    gal.wall4.material.color.set(0xaabbbb);
-                }
-                else {
-                    gal.wall4.material.color.set(0xffffff);
-                }
 				gal.prevTime = currentTime;
 
                 gal.renderer.render(gal.scene, gal.camera);
@@ -503,11 +469,9 @@ else {
 			}
 
             if(gal.initialRender === true) {
-                gal.wall1.BBox.setFromObject(gal.wall1);
-                gal.wall2.BBox.setFromObject(gal.wall2);
-                gal.wall3.BBox.setFromObject(gal.wall3);
-                gal.wall4.BBox.setFromObject(gal.wall4);
-
+                for(var i = 0; i < gal.wallGroup.children.length; i++) {
+                    gal.wallGroup.children[i].BBox.setFromObject(gal.wallGroup.children[i]);
+                }
                 gal.renderer.render(gal.scene, gal.camera);
             }
         }
@@ -519,4 +483,4 @@ else {
 	gal.create();
 	gal.raycastSetUp();
 	gal.render();
-} //closes else statement of webGL detector.
+} 
