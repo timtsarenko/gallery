@@ -70,9 +70,7 @@ THREE.PointerLockControls = function ( camera ) {
 
 	//returns parent object that contains the two rotations and camera
 	this.getObject = function () {
-
 		return yawObject;
-
 	};
 
 	this.getDirection = function() {

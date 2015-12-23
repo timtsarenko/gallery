@@ -411,7 +411,18 @@ else {
 						gal.moveVelocity.y = 0;
 						gal.controls.getObject().position.y = 1.75;
 				}
-
+                if(gal.controls.getObject().position.z < -2) {
+                        gal.controls.getObject().position.z = -2;
+                }
+                if(gal.controls.getObject().position.z > 2) {
+                        gal.controls.getObject().position.z = 2;
+                }
+                if(gal.controls.getObject().position.x < -18) {
+                        gal.controls.getObject().position.x = -18;
+                }
+                if(gal.controls.getObject().position.x > 18) {
+                        gal.controls.getObject().position.x = 18;
+                }
                 /*//rayCaster/////
                 gal.raycaster.setFromCamera(gal.mouse, gal.camera);
 
@@ -427,13 +438,30 @@ else {
                 for(var i = 0; i < gal.wallGroup.children.length; i++) {
 
                     if(gal.user.BBox.isIntersectionBox(gal.wallGroup.children[i].BBox)){
-      	
+     
+                        //reffer to  forced positioning from above
+                        //if gets to a certain value, force value to that value?
+                        /*
+                        if(gal.controls.getObject().position.x > gal.pastX) { //collision on right side
+                            gal.controls.getObject().position.x = gal.pastX;
+                        }
+                        else if(gal.controls.getObject().position.x < gal.pastX) { //collision on left side
+                            gal.controls.getObject().position.x = gal.pastX;
+                        }
+                        if(gal.controls.getObject().position.z > gal.pastZ) { //collision from front
+                            gal.controls.getObject().position.z = gal.pastZ;
+                        }
+                        else if(gal.controls.getObject().position.z < gal.pastZ) {
+                            gal.controls.getObject().position.z = gal.pastZ;
+                        }
+                        */
+                        /*
 						gal.controls.getObject().position.x -= gal.pastX * delta * .9;
 						gal.controls.getObject().position.z -= gal.pastZ * delta * .9;
 
 						gal.moveVelocity.x = 0;
 						gal.moveVelocity.z = 0;
-                        
+                        */
                         gal.user.BBox.setFromObject(gal.user);
                     }
                     else {
