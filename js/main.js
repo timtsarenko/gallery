@@ -57,8 +57,6 @@ else {
             //making Bounding Box and HelperBox
             //boundingbox is used for collisions, Helper box just makes it easier to debug 
             gal.user.BBox = new THREE.Box3();
-            gal.user.HBox = new THREE.BoundingBoxHelper(gal.user, 0xffaaaa);
-            gal.scene.add(gal.user.HBox);
 
             //make our collision object a child of the camera
             gal.camera.add(gal.user);
@@ -289,8 +287,6 @@ else {
             for(var i = 0; i < gal.wallGroup.children.length; i++) {
                 gal.wallGroup.children[i].BBox = new THREE.Box3();
                 gal.wallGroup.children[i].BBox.setFromObject(gal.wallGroup.children[i]);
-                gal.wallGroup.children[i].HBox = new THREE.BoundingBoxHelper(gal.wallGroup.children[i], 0xffaaaa);
-                gal.scene.add(gal.wallGroup.children[i].HBox);
             }
 
 			//Ceiling//
@@ -429,24 +425,16 @@ else {
                 */
 
                 for(var i = 0; i < gal.wallGroup.children.length; i++) {
-                    gal.wallGroup.children[i].HBox.update();
 
                     if(gal.user.BBox.isIntersectionBox(gal.wallGroup.children[i].BBox)){
-                        gal.wallGroup.children[i].material.color.set(0xaabbbb);
-        
-                        gal.controls.getObject().position.x = 0;
-                        gal.controls.getObject().position.z = 0;
-                        /*
-                        gal.controls.getObject().translateX(-(delta * gal.moveVelocity.x));
-                        gal.controls.getObject().translateZ(-(delta * gal.moveVelocity.z));
-                        
-                        gal.moveVelocity.x = 0;
-                        gal.moveVelocity.z = 0;
-                        
-                        gal.user.HBox.update();
-                        gal.user.BBox.setFromObject(gal.user);
-                        */
+      	
+						gal.controls.getObject().position.x -= gal.pastX * delta * .9;
+						gal.controls.getObject().position.z -= gal.pastZ * delta * .9;
 
+						gal.moveVelocity.x = 0;
+						gal.moveVelocity.z = 0;
+                        
+                        gal.user.BBox.setFromObject(gal.user);
                     }
                     else {
                         gal.wallGroup.children[i].material.color.set(0xffffff);
@@ -455,7 +443,6 @@ else {
                 gal.pastX = gal.controls.getObject().position.x;
                 gal.pastZ = gal.controls.getObject().position.z;
 
-                gal.user.HBox.update();
                 gal.user.BBox.setFromObject(gal.user);
 
 				gal.prevTime = currentTime;
