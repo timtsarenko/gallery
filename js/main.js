@@ -7,10 +7,13 @@ else {
 	var gal = {
 		/*
 		gal.scene;
-			gal.scene.fog;
 		gal.camera;
 		gal.renderer;
+		gal.raycaster;
+		gal.mouse;
+		gal.raycastSetUp;
 		gal.boot;
+			gal.scene.fog;
 			gal.controls;
 			gal.canvas;
 		gal.pointerControls;
@@ -20,26 +23,49 @@ else {
 			gal.toggleFullScreen;
 		gal.movement;
 		gal.create;
-		gal.raycaster;
-		gal.mouse;
-		gal.raycastSetUp;
 		gal.render;
 		*/
 		scene: new THREE.Scene(),
 		camera: new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000),
 		renderer: new THREE.WebGLRenderer({antialias: false}),
-
+		raycaster: new THREE.Raycaster(),
+		mouse: new THREE.Vector2(),
+		raycastSetUp: function() {
+			gal.mouse.x = (0.5) * 2 - 1;
+			gal.mouse.y = (0.5) * 2 + 1;
+		},
 		boot: function() {
+			//renderer time delta
+			gal.prevTime = performance.now();
+
             gal.initialRender = true;
+
+			gal.scene.fog = new THREE.FogExp2(0x666666, 0.025);
+
+			gal.renderer.setSize(window.innerWidth, window.innerHeight);
+			gal.renderer.setClearColor(0xffffff, 1);
+			document.body.appendChild(gal.renderer.domElement);
+
+            gal.userBoxGeo = new THREE.BoxGeometry(2,1,2);
+            gal.userBoxMat = new THREE.MeshBasicMaterial({color: 0xeeee99, wireframe: true});
+            gal.user = new THREE.Mesh(gal.userBoxGeo, gal.userBoxMat);
+
+            //invisible since this will solely be used to determine the size
+            //of the bounding box of our boxcollider for the user
+            gal.user.visible = false;
+            
+            //making Bounding Box and HelperBox
+            //boundingbox is used for collisions, Helper box just makes it easier to debug 
+            gal.user.BBox = new THREE.Box3();
+
+            //make our collision object a child of the camera
+            gal.camera.add(gal.user);
 
 			gal.controls = new THREE.PointerLockControls(gal.camera);
 			gal.scene.add( gal.controls.getObject());
 
-			gal.scene.fog = new THREE.FogExp2(0x666666, 0.025);
-			
-			gal.renderer.setSize(window.innerWidth, window.innerHeight);
-			gal.renderer.setClearColor(0xffffff, 1);
-			document.body.appendChild(gal.renderer.domElement);
+            gal.pastX = gal.controls.getObject().position.x;
+            gal.pastZ = gal.controls.getObject().position.z;
 
 			//https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector
 			gal.canvas = document.querySelector('canvas');
@@ -59,9 +85,6 @@ else {
 			gal.moveBackward = false;
 			gal.moveLeft = false;
 			gal.moveRight = false;
-
-			//renderer time delta
-			gal.prevTime = performance.now();
 
 			//Resize if window size change!
 			window.addEventListener('resize', function() {
@@ -245,45 +268,26 @@ else {
 			gal.wallGroup = new THREE.Group();
 			gal.scene.add(gal.wallGroup);
 
-			gal.wallMaterial1 = new THREE.MeshLambertMaterial({color: 0xffffff});
-			gal.wallMaterial2 = new THREE.MeshLambertMaterial({color: 0xffffff});
-			gal.wallMaterial3 = new THREE.MeshLambertMaterial({color: 0xffffff});
-			gal.wallMaterial4 = new THREE.MeshLambertMaterial({color: 0xffffff});
-			//consider BufferGeometry for static objects in the future
-			gal.wall1 = new THREE.Mesh(new THREE.PlaneGeometry(40,6), gal.wallMaterial1);
-			gal.wall2 = new THREE.Mesh(new THREE.PlaneGeometry(6,6), gal.wallMaterial2);
-			gal.wall3 = new THREE.Mesh(new THREE.PlaneGeometry(6,6), gal.wallMaterial3);
-			gal.wall4 = new THREE.Mesh(new THREE.PlaneGeometry(40,6), gal.wallMaterial4);
+			gal.wall1 = new THREE.Mesh(new THREE.BoxGeometry(40,6, 0.001), new THREE.MeshLambertMaterial({color: 0xffffff}));
+			gal.wall2 = new THREE.Mesh(new THREE.BoxGeometry(6,6, 0.001), new THREE.MeshLambertMaterial({color: 0xffffff}));
+			gal.wall3 = new THREE.Mesh(new THREE.BoxGeometry(6,6, 0.001), new THREE.MeshLambertMaterial({color: 0xffffff}));
+			gal.wall4 = new THREE.Mesh(new THREE.BoxGeometry(40,6, 0.001), new THREE.MeshLambertMaterial({color: 0xffffff}));
+
+			gal.wallGroup.add(gal.wall1, gal.wall2, gal.wall3, gal.wall4);
+			gal.wallGroup.position.y = 3;
 
 			gal.wall1.position.z = -3;
-
 			gal.wall2.position.x = -20;
 			gal.wall2.rotation.y = Math.PI/2;
-			
 			gal.wall3.position.x = 20;
 			gal.wall3.rotation.y = -Math.PI/2;
-
 			gal.wall4.position.z = 3;
 			gal.wall4.rotation.y = Math.PI;
 
-			gal.wall1.name = "longWall1";
-			gal.wall2.name = "shortWall1";
-			gal.wall3.name = "shortWall2";
-			gal.wall4.name = "longWall2";
-
-			gal.wallGroup.add(gal.wall1);
-			gal.wallGroup.add(gal.wall2);
-			gal.wallGroup.add(gal.wall3);
-			gal.wallGroup.add(gal.wall4);
-    
-            gal.intersectObjects = [];
-
-            gal.intersectObjects.push(gal.wall1);
-            gal.intersectObjects.push(gal.wall2);
-            gal.intersectObjects.push(gal.wall3);
-            gal.intersectObjects.push(gal.wall4);
-
-			gal.wallGroup.position.y = 3;
+            for(var i = 0; i < gal.wallGroup.children.length; i++) {
+                gal.wallGroup.children[i].BBox = new THREE.Box3();
+                gal.wallGroup.children[i].BBox.setFromObject(gal.wallGroup.children[i]);
+            }
 
 			//Ceiling//
 			//gal.ceilMaterial = new THREE.MeshLambertMaterial({color: 0x8DB8A7});
@@ -293,8 +297,6 @@ else {
 			gal.ceil.rotation.x = Math.PI/2;
 
 			gal.scene.add(gal.ceil);
-
-
 
             ///////Add 3D imported Objects ////
             /*
@@ -334,13 +336,11 @@ else {
 					var ratiow = 0;
 					var ratioh = 0;
 
-                    // ./img/Artwork/index.jpg
 					var source = './img/Artworks/' + (index).toString() + '.jpg';
 					artwork.src = source;
                     
                     var texture = THREE.ImageUtils.loadTexture(artwork.src);
                     texture.minFilter = THREE.LinearFilter;
-
 					var img = new THREE.MeshBasicMaterial({ map: texture });
 
 					artwork.onload = function(){
@@ -359,7 +359,7 @@ else {
 						{
 							//plane.rotation.z = Math.PI/2;
                             plane.position.set(2.5 * index - 55 ,2 ,2.96);
-						//	plane.position.set(65*i - 75*Math.floor(gal.num_of_paintings/2) - 15*Math.floor(num_of_paintings/2), 48, 90);
+                            //plane.position.set(65*i - 75*Math.floor(gal.num_of_paintings/2) - 15*Math.floor(num_of_paintings/2), 48, 90);
 							plane.rotation.y = Math.PI;
 						}
 						gal.scene.add(plane);
@@ -369,15 +369,7 @@ else {
 					img.map.needsUpdate = true; //ADDED
 				}(i))
 			}
-
 		},
-		raycaster: new THREE.Raycaster(),
-		mouse: new THREE.Vector2(),
-		raycastSetUp: function() {
-			gal.mouse.x = (0.5) * 2 - 1;
-			gal.mouse.y = (0.5) * 2 + 1;
-		},
-		
 		render: function() {
 			requestAnimationFrame(gal.render);
 
@@ -417,15 +409,24 @@ else {
 				if(gal.controls.getObject().position.y < 1.75) {
 						gal.jump = true;
 						gal.moveVelocity.y = 0;
-
 						gal.controls.getObject().position.y = 1.75;
 				}
-
+                if(gal.controls.getObject().position.z < -2) {
+                        gal.controls.getObject().position.z = -2;
+                }
+                if(gal.controls.getObject().position.z > 2) {
+                        gal.controls.getObject().position.z = 2;
+                }
+                if(gal.controls.getObject().position.x < -18) {
+                        gal.controls.getObject().position.x = -18;
+                }
+                if(gal.controls.getObject().position.x > 18) {
+                        gal.controls.getObject().position.x = 18;
+                }
                 /*//rayCaster/////
                 gal.raycaster.setFromCamera(gal.mouse, gal.camera);
 
                 //calculate objects interesting ray
-                //var intersects = gal.raycaster.intersectObjects(gal.intersectObjects);
                 var intersects = gal.raycaster.intersectObjects(gal.paintings);
                 if(intersects.length !== 0) {
                     intersects[0].object.material.color.set(0xaaeeee);
@@ -434,21 +435,58 @@ else {
                 }
                 */
 
+                for(var i = 0; i < gal.wallGroup.children.length; i++) {
+
+                    if(gal.user.BBox.isIntersectionBox(gal.wallGroup.children[i].BBox)){
+     
+                        //reffer to  forced positioning from above
+                        //if gets to a certain value, force value to that value?
+                        /*
+                        if(gal.controls.getObject().position.x > gal.pastX) { //collision on right side
+                            gal.controls.getObject().position.x = gal.pastX;
+                        }
+                        else if(gal.controls.getObject().position.x < gal.pastX) { //collision on left side
+                            gal.controls.getObject().position.x = gal.pastX;
+                        }
+                        if(gal.controls.getObject().position.z > gal.pastZ) { //collision from front
+                            gal.controls.getObject().position.z = gal.pastZ;
+                        }
+                        else if(gal.controls.getObject().position.z < gal.pastZ) {
+                            gal.controls.getObject().position.z = gal.pastZ;
+                        }
+                        */
+                        /*
+						gal.controls.getObject().position.x -= gal.pastX * delta * .9;
+						gal.controls.getObject().position.z -= gal.pastZ * delta * .9;
+
+						gal.moveVelocity.x = 0;
+						gal.moveVelocity.z = 0;
+                        */
+                        gal.user.BBox.setFromObject(gal.user);
+                    }
+                    else {
+                        gal.wallGroup.children[i].material.color.set(0xffffff);
+                    }
+                }
+                gal.pastX = gal.controls.getObject().position.x;
+                gal.pastZ = gal.controls.getObject().position.z;
+
+                gal.user.BBox.setFromObject(gal.user);
+
 				gal.prevTime = currentTime;
+
                 gal.renderer.render(gal.scene, gal.camera);
 			}
 			else {
-					//if game is paused, reset the velocity vectors
-					//so that the player is not translated when game is resumed
-					gal.moveVelocity.z = 0.0;
-					gal.moveVelocity.x = 0.0;
-
-					//it may be the case that resetting deltaTime is a better choice
-					//as this means anything dependent of deltaT will not result in
-					//bugs when the player pauses the game
+                    //reset delta time, so when unpausing, time elapsed during pause
+                    //doesn't affect any variables dependent on time.
+                    gal.prevTime = performance.now();
 			}
 
             if(gal.initialRender === true) {
+                for(var i = 0; i < gal.wallGroup.children.length; i++) {
+                    gal.wallGroup.children[i].BBox.setFromObject(gal.wallGroup.children[i]);
+                }
                 gal.renderer.render(gal.scene, gal.camera);
             }
         }
@@ -460,4 +498,4 @@ else {
 	gal.create();
 	gal.raycastSetUp();
 	gal.render();
-} //closes else statement of webGL detector.
+} 

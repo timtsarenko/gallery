@@ -41,6 +41,10 @@ THREE.PointerLockControls = function ( camera ) {
 		//multiplied by a constant. 
 		yawObject.rotation.y -= movementX * 0.002;
 		pitchObject.rotation.x -= movementY * 0.002;
+        
+        //only the box collider surrounding the user should not rotate around any axis
+        camera.children[0].rotation.y += movementX * 0.002;
+        camera.children[0].rotation.x += movementY * 0.002;
 
 		//we want to constrain how far the user can rotate around the x-axis.
 		//Our bounds are [-PI/2, PI/2] so we can only rotate 90 degrees up or down from
@@ -48,6 +52,7 @@ THREE.PointerLockControls = function ( camera ) {
 		//around the x axis, from the mouse is in between our bounds, assign that value, else,
 		//assign the upper or lower bound that it exceeds instead.
 		pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
+        camera.children[0].rotation.x = Math.max( - PI_2, Math.min( PI_2, camera.children[0].rotation.x ) );
 
 	};
 
@@ -65,9 +70,7 @@ THREE.PointerLockControls = function ( camera ) {
 
 	//returns parent object that contains the two rotations and camera
 	this.getObject = function () {
-
 		return yawObject;
-
 	};
 
 	this.getDirection = function() {
