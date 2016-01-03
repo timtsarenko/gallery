@@ -6,26 +6,13 @@ There is now a functional alpha version currently being hosted at owlsketch.gith
 
 This program is based on two programs. A python web scraper, that gets the images of your favorite artist from http://www.metmuseum.org/collection/the-collection-online, and a webGL/ThreeJs application that dynamically makes your own art gallery.
 
-![Alt text](https://cloud.githubusercontent.com/assets/5739127/11604668/98074df6-9abd-11e5-8efd-8badf16d294d.png "Gallery Image")
+![Alt text](https://cloud.githubusercontent.com/assets/5739127/12076105/bf8f3b08-b16b-11e5-9cd9-f7951574b60a.png "Gallery Image")
 
 
 #Current Release
-##v0.1-alpha.1
-
-In this first release the following has been implemented:
-
-1. Python Web Scraper for the Metropolitan Open Collection
-	* Instantiate json files for every painting
-2. Three.js/WebGL Gallery environment
-
-3. Artwork has been loaded into the environment
-
-4. Controls (W,A,S,D, and Spacebar), Pointer Lock (Camera pitch and yaw), and Fullscreen (F key) actions
-
-#Next Release
 ##v0.1-alpha.2
 
-The implementations (in order of priority) for the next release will be:
+The following has been implemented:
 
 1. Menu for pause screen and rendering pause
 
@@ -34,6 +21,17 @@ The implementations (in order of priority) for the next release will be:
 3. Player object collision against walls and other objects
 
 4. Imported 3D objects successfully loaded
+
+#Next Release
+##v0.1-alpha.3
+
+The implementations (in order of priority) for the next release will be:
+
+1. Sub-menu for controls and credits sections
+
+2. Allow control re-mapping and sensitivity adjustment
+
+3. Import "missing" 3D elements for sample scene (Molding, lights, frames)
 
 # Structure 
 App structure is as follows:
