@@ -10,9 +10,9 @@ module.exports = function() {
 	}));
 	app.use(bodyParser.json());
 
-	app.use(express.static('./public'));
+	app.use('/gallery', express.static('public'));
 
-	app.get('/', function(req,res) {
+	app.get('/gallery', function(req,res) {
 		res.sendFile(path.join(__dirname + '/../index.html'));
 	});
 
