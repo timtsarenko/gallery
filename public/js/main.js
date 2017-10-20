@@ -29,10 +29,11 @@ else {
 		camera: new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000),
 		renderer: new THREE.WebGLRenderer({antialias: false}),
 		raycaster: new THREE.Raycaster(),
-		mouse: new THREE.Vector2(),
+		mouse: new THREE.Vector3(),
 		raycastSetUp: function() {
-			gal.mouse.x = (0.5) * 2 - 1;
-			gal.mouse.y = (0.5) * 2 + 1;
+			gal.mouse.x = 0; //(0.5) * 2 - 1;
+			gal.mouse.y = 0; //(0.5) * 2 + 1;
+			gal.mouse.z = 0.0001;
 		},
 		boot: function() {
 			//renderer time delta
@@ -361,7 +362,7 @@ else {
                             plane.position.set(2.5 * index - 55 ,2 ,2.96);
                             //plane.position.set(65*i - 75*Math.floor(gal.num_of_paintings/2) - 15*Math.floor(num_of_paintings/2), 48, 90);
 							plane.rotation.y = Math.PI;
-						}
+						}https://aerotwist.com/tutorials/create-your-own-environment-maps/
 						gal.scene.add(plane);
                         gal.paintings.push(plane);
 					}
@@ -423,17 +424,16 @@ else {
                 if(gal.controls.getObject().position.x > 18) {
                         gal.controls.getObject().position.x = 18;
                 }
-                /*//rayCaster/////
-                gal.raycaster.setFromCamera(gal.mouse, gal.camera);
 
+                //rayCaster/////
+                gal.raycaster.setFromCamera(gal.mouse.clone(), gal.camera);
                 //calculate objects interesting ray
-                var intersects = gal.raycaster.intersectObjects(gal.paintings);
-                if(intersects.length !== 0) {
-                    intersects[0].object.material.color.set(0xaaeeee);
+                gal.intersects = gal.raycaster.intersectObjects(gal.paintings);
+                if(gal.intersects.length !== 0) {
+                    gal.intersects[0].object.material.color.set(0xaaeeee);
                     //console.log(intersects[0].distance);
-                    console.log(intersects[0].point);
+                    console.log(gal.intersects[0].point);
                 }
-                */
 
                 for(var i = 0; i < gal.wallGroup.children.length; i++) {
 
@@ -492,10 +492,10 @@ else {
         }
 	};
 
+	gal.raycastSetUp();
 	gal.boot();
 	gal.pointerControls();
 	gal.movement();
 	gal.create();
-	gal.raycastSetUp();
 	gal.render();
 } 

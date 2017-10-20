@@ -76,7 +76,7 @@ THREE.PointerLockControls = function ( camera ) {
 	this.getDirection = function() {
 
 		// assumes the camera itself is not rotated
-
+		/*
 		var direction = new THREE.Vector3( 0, 0, - 1 );
 		var rotation = new THREE.Euler( 0, 0, 0, "YXZ" );
 		//defines rotation around axis in given order
@@ -93,7 +93,7 @@ THREE.PointerLockControls = function ( camera ) {
 			return v;
 
 		}
-
+		*/
 	}();
 
 };
