@@ -1,24 +1,46 @@
 {
   "name": "gallery",
-  "version": "1.0.0",
-  "description": "Online Art Gallery using Three.js",
+  "version": "0.1.0",
+  "description": "Interactive art galleries for the web",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "build": "webpack --mode=development --config webpack.dev.js",
+    "build:prod": "webpack --mode=production --config webpack.prod.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/owlsketch/gallery.git"
+    "url": "https://github.com/owlsketch/gallery.git"
   },
-  "author": "Gibran Garcia <satimidus@gmail.com> (http://owlsketch.com)",
+  "keywords": [
+    "art",
+    "gallery",
+    "interactive"
+  ],
+  "author": "Gibran Garcia",
+  "contributors": [
+    "Danica Sapit"
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/owlsketch/gallery/issues"
   },
   "homepage": "https://github.com/owlsketch/gallery#readme",
   "dependencies": {
-    "body-parser": "^1.18.2",
-    "express": "^4.16.2"
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "clean-webpack-plugin": "^0.1.19",
+    "css-loader": "^1.0.0",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "node-sass": "^4.9.2",
+    "sass-loader": "^7.1.0",
+    "uglifyjs-webpack-plugin": "^1.2.7",
+    "webpack": "^4.16.4",
+    "webpack-cli": "^3.1.0",
+    "webpack-merge": "^4.1.4"
   }
 }

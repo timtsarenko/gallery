@@ -1,5 +1,5 @@
-const port = 3001;
+const port = 3000
 
 module.exports = {
-	port: port
-};
+  port
+}

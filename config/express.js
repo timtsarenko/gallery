@@ -1,20 +1,17 @@
-let express = require('express');
-let bodyParser = require('body-parser');
-let path = require('path');
+const express = require('express')
+const bodyParser = require('body-parser')
 
 module.exports = function() {
-	let app = express();
-	
-	app.use(bodyParser.urlencoded({
-		extended: true
-	}));
-	app.use(bodyParser.json());
+  let app = express()
 
-	app.use('/gallery', express.static('public'));
+  app.use(bodyParser.urlencoded({extended: true}))
+  app.use(bodyParser.json())
 
-	app.get('/gallery', function(req,res) {
-		res.sendFile(path.join(__dirname + '/../index.html'));
-	});
+  //TODO: handle based on node_env
+  app.use(express.static('./dist'))
+  app.use(express.static('./public'))
 
-	return app;
-};
+  require('../app/routes/main.routes.js')(app)
+
+  return app
+}
