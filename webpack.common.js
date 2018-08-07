@@ -1,15 +1,13 @@
 const path = require('path')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const nodeExternals = require('webpack-node-externals')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
-
-let extractPlugin = new ExtractTextPlugin({
-  filename: '[name].bundle.css'
-})
 
 module.exports = {
   entry: {
-    main: './public/js/main.js'
+    main: './client/js/main.js'
   },
+  target: 'node',
+  externals: [nodeExternals()],
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'build')
@@ -17,26 +15,32 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.jsx?$/,
         use: [
           {
             loader: 'babel-loader',
-            options: { presets: ['env'] }
+            options: { presets: ['react', 'env'] }
           }
         ]
       },
       {
-        test: /\.css$/,
-        use: extractPlugin.extract({ use: ['css-loader'] })
+        test: /\.scss$/,
+        use: [
+          { loader: 'style-loader' },
+          { loader: 'css-loader' },
+          { loader: 'sass-loader' }
+        ]
       },
       {
-        test: /\.scss$/,
-        use: extractPlugin.extract({ use: ['css-loader', 'sass-loader'] })
+        test: /\.css$/,
+        use: [
+          { loader: 'style-loader' },
+          { loader: 'css-loader' }
+        ]
       }
     ]
   },
   plugins: [
-    extractPlugin,
     new CleanWebpackPlugin(['build'])
   ]
 }

@@ -8,10 +8,10 @@ module.exports = function() {
   app.use(bodyParser.json())
 
   //TODO: handle based on node_env
-  app.use(express.static('./dist'))
-  app.use(express.static('./public'))
+  app.use(express.static('./build'))
+  app.use(express.static('./client'))
 
-  require('../app/routes/main.routes.js')(app)
+  require('../server/routes/main.routes.js')(app)
 
   return app
 }
