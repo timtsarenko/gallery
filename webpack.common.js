@@ -6,8 +6,6 @@ module.exports = {
   entry: {
     main: './client/js/main.js'
   },
-  target: 'node',
-  externals: [nodeExternals()],
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'build')
@@ -24,18 +22,11 @@ module.exports = {
         ]
       },
       {
-        test: /\.scss$/,
+        test: /\.s?css$/,
         use: [
           { loader: 'style-loader' },
           { loader: 'css-loader' },
           { loader: 'sass-loader' }
-        ]
-      },
-      {
-        test: /\.css$/,
-        use: [
-          { loader: 'style-loader' },
-          { loader: 'css-loader' }
         ]
       }
     ]

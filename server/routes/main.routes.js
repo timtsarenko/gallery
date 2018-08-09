@@ -1,8 +1,9 @@
 const path = require('path')
 
 module.exports = function (app) {
+  const viewPath = app.get('viewPath') 
+
   app.get('/', function (req, res) {
-    res.send('Hola mundo!')
-    //res.sendFile(path.join(__dirname + '/test.html'))
+    res.sendFile(path.join(viewPath, 'test.html'))
   })
 }
