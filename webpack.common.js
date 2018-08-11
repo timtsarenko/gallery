@@ -1,4 +1,5 @@
 const path = require('path')
+const MiniCSSExtractPlugin = require('mini-css-extract-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 
 module.exports = {
@@ -23,7 +24,7 @@ module.exports = {
       {
         test: /\.s?css$/,
         use: [
-          { loader: 'style-loader' },
+          { loader: MiniCSSExtractPlugin.loader },
           { loader: 'css-loader' },
           { loader: 'sass-loader' }
         ]
@@ -31,6 +32,10 @@ module.exports = {
     ]
   },
   plugins: [
+    new MiniCSSExtractPlugin({
+      filename: '[name].bundle.css',
+      chunkFilename: '[id].bundle.css'
+    }),
     new CleanWebpackPlugin(['build'])
   ]
 }
