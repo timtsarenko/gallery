@@ -5,7 +5,7 @@ const path = require('path')
 module.exports = function () {
   let app = express()
 
-  app.use(bodyParser.urlencoded({extended: true}))
+  app.use(bodyParser.urlencoded({ extended: true }))
   app.use(bodyParser.json())
 
   // don't need to use a view engine, just plain html
