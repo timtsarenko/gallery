@@ -8,11 +8,11 @@ module.exports = function () {
   app.use(bodyParser.urlencoded({ extended: true }))
   app.use(bodyParser.json())
 
-  // don't need to use a view engine, just plain html
-  // so just assigning absolute path in express for convenience
-  app.set('viewPath', path.join(__dirname, '../client/views'))
+  app.use(function (req, res, next) {
+    req.viewPath = path.join(__dirname, '../client/views')
+    next()
+  })
 
-  // TODO: handle based on node_env
   app.use(express.static('./build'))
   app.use(express.static('./client/img'))
 
