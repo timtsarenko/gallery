@@ -1,8 +1,8 @@
-const path = require('path')
-const express = require('express')
+let path = require('path')
+let express = require('express')
 let router = express.Router()
 
-router.get('/:galleryid', function (req, res) {
+router.get('/:galleryId', function (req, res) {
   res.sendFile(path.join(req.viewPath, 'gallery.html'))
 })
 

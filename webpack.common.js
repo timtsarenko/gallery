@@ -1,14 +1,17 @@
-const path = require('path')
-const MiniCSSExtractPlugin = require('mini-css-extract-plugin')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
+let path = require('path')
+let MiniCSSExtractPlugin = require('mini-css-extract-plugin')
+let CleanWebpackPlugin = require('clean-webpack-plugin')
 
 module.exports = {
   entry: {
-    main: './client/js/main.js'
+    main: './client/js/main.jsx'
   },
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'build')
+  },
+  resolve: {
+    extensions: ['.js', '.jsx']
   },
   module: {
     rules: [

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+let mongoose = require('mongoose')
 
 module.exports = function () {
   const user = process.env.DB_USER
@@ -31,6 +31,12 @@ module.exports = function () {
       process.exit(0)
     })
   })
+
+  mongoose.set('useFindAndModify', false) // method is deprecated
+
+  require('../server/models/User.js')
+  require('../server/models/Gallery.js')
+  require('../server/models/Artwork.js')
 
   return mongoose.connection
 }

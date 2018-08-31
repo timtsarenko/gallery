@@ -1,5 +1,4 @@
-const mongoose = require('mongoose')
-
+let mongoose = require('mongoose')
 let Schema = mongoose.Schema
 
 let ArtworkSchema = new Schema(
