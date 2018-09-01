@@ -6,15 +6,12 @@ module.exports = function () {
     let query = User.findOne({ username: username })
 
     query.exec(function (err, user) {
-      if (err) {
-        return done(err)
+      if (err) { return done(err) }
+
+      if (!user || !user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect username or password.' })
       }
-      if (!user) {
-        return done(null, false, { message: 'Incorrect username.' })
-      }
-      if (user.password !== password) { // TODO: implement encryption on password stored in db
-        return done(null, false, { message: 'Incorrect password.' })
-      }
+
       return done(null, user)
     })
   })
