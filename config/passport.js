@@ -1,6 +1,7 @@
 let passport = require('passport')
-let localStrategy = require('./strategies/local.js')()
 let User = require('mongoose').model('User')
+let localLogInStrategy = require('./strategies/localLogIn.js')()
+let localSignUpStrategy = require('./strategies/localSignUp.js')()
 
 module.exports = function () {
   // store user.id in session
@@ -15,5 +16,6 @@ module.exports = function () {
     })
   })
 
-  passport.use(localStrategy)
+  passport.use('local-login', localLogInStrategy)
+  passport.use('local-signup', localSignUpStrategy)
 }

@@ -32,8 +32,6 @@ module.exports = function () {
     })
   })
 
-  mongoose.set('useFindAndModify', false) // method is deprecated
-
   require('../server/models/User.js')
   require('../server/models/Gallery.js')
   require('../server/models/Artwork.js')
