@@ -5,7 +5,7 @@ let flash = require('connect-flash')
 let bodyParser = require('body-parser')
 let passport = require('passport')
 
-module.exports = function () {
+module.exports = function (process) {
   let app = express()
 
   // static files and html

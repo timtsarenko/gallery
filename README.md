@@ -39,9 +39,11 @@ Once everything is installed, you will need to set up a .env file in the project
 NODE_ENV=development
 DB_USER=Pablo
 DB_PWD=ElPasswordoDePablo
+SESSION_SECRET=ElSecretoDeSession
 ```
 `NODE_ENV` should reflect wether you are developing (development) or deploying (production).
 `DB_USER` and `DB_PWD` should be your username and password for the mLab MongoDB database we are accessing via Mongoose.
+`SESSION_SECRET` is the secret used by express for our user sessions.
 
 ## Developing
 To run our server:
