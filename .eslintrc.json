@@ -1,10 +1,7 @@
 {
   "extends": [
     "standard",
-    "plugin:react/recommended"
-  ],
-  "plugins": ["jest"],
-  "env": {
-    "jest/globals": true
-  }
+    "plugin:react/recommended",
+    "plugin:jest/recommended"
+  ]
 }

@@ -5,10 +5,18 @@ module.exports = function () {
   const pwd = process.env.DB_PWD
 
   // TODO: set autoIndex option for production if necessary
-  mongoose.connect(
-    `mongodb://${user}:${pwd}@ds233212.mlab.com:33212/galeria`,
-    { useNewUrlParser: true }
-  )
+
+  if (process.env.NODE_ENV === 'test') {
+    mongoose.connect(
+      `mongodb://${user}:${pwd}@ds251022.mlab.com:51022/galeria-test`,
+      { useNewUrlParser: true }
+    )
+  } else {
+    mongoose.connect(
+      `mongodb://${user}:${pwd}@ds233212.mlab.com:33212/galeria`,
+      { useNewUrlParser: true }
+    )
+  }
 
   mongoose.Promise = global.Promise
 

@@ -3,9 +3,8 @@ let express = require('express')
 let session = require('express-session')
 let flash = require('connect-flash')
 let bodyParser = require('body-parser')
-let passport = require('passport')
 
-module.exports = function (process) {
+module.exports = function (process, passport) {
   let app = express()
 
   // static files and html
@@ -27,7 +26,7 @@ module.exports = function (process) {
   app.use(passport.initialize())
   app.use(passport.session())
 
-  require('../server/routes/main.routes.js')(app)
+  require('../server/routes/main.routes.js')(app, passport)
 
   return app
 }

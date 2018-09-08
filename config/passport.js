@@ -1,9 +1,10 @@
-let passport = require('passport')
 let User = require('mongoose').model('User')
 let localLogInStrategy = require('./strategies/localLogIn.js')()
 let localSignUpStrategy = require('./strategies/localSignUp.js')()
 
 module.exports = function () {
+  let passport = require('passport')
+
   // store user.id in session
   passport.serializeUser(function (user, done) {
     done(null, user.id) // id is a virtual for _id
@@ -18,4 +19,6 @@ module.exports = function () {
 
   passport.use('local-login', localLogInStrategy)
   passport.use('local-signup', localSignUpStrategy)
+
+  return passport
 }
