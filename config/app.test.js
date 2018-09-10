@@ -53,16 +53,28 @@ describe('Test paths without a session', () => {
         expect(res.get('Content-Type')).toBe('text/html; charset=UTF-8')
       })
   })
+
+  it('redirects to \'/\' on GET to \'/logout\'', () => {
+    return request(app)
+      .get('/logout')
+      .then(res => {
+        expect(res.statusCode).toBe(302)
+        expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+        expect(res.get('Location')).toBe('/')
+      })
+  })
 })
 
-describe('Test login form', () => {
+describe('Test login and signup forms', () => {
+  let submission = {
+    username: 'owlsketch',
+    email: 'hello@owlsketch.com',
+    password: 'elpasswordodeowlsketch',
+    age: 23
+  }
+
   beforeAll((done) => {
-    let newUser = new User({
-      username: 'owlsketch',
-      email: 'hello@owlsketch.com',
-      password: 'elpasswordodeowlsketch',
-      age: 23
-    })
+    let newUser = new User(submission)
 
     newUser.save(function (err) {
       if (err) {
@@ -77,42 +89,90 @@ describe('Test login form', () => {
     return User.remove().exec()
   })
 
-  it('redirects to /login on failed login attempt', () => {
-    return request(app)
-      .post('/login')
-      .send({username: 'owlsketch', password: 'nachocheese'})
-      .then(res => {
-        expect(res.statusCode).toBe(302)
-        expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-        expect(res.get('Location')).toBe('/login')
+  describe('Test login form', () => {
+    describe('redirects to /login on failed login attempt', () => {
+      it('fails due to non-existing user', () => {
+        return request(app)
+          .post('/login')
+          .send({username: 'nonExistingUser', password: 'nachocheese'})
+          .then(res => {
+            expect(res.statusCode).toBe(302)
+            expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+            expect(res.get('Location')).toBe('/login')
+          })
       })
+      it('fails due to wrong password on existing user', () => {
+        return request(app)
+          .post('/login')
+          .send({username: 'owlsketch', password: 'nachocheese'})
+          .then(res => {
+            expect(res.statusCode).toBe(302)
+            expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+            expect(res.get('Location')).toBe('/login')
+          })
+      })
+    })
+
+    it('redirects to user\'s page on successful login', () => {
+      return request(app)
+        .post('/login')
+        .send({username: 'owlsketch', password: 'elpasswordodeowlsketch'})
+        .then(res => {
+          expect(res.statusCode).toBe(302)
+          expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+          expect(res.get('Location')).toBe('/users/owlsketch')
+        })
+    })
   })
 
-  it('redirects to user\'s page on successful login', () => {
-    return request(app)
-      .post('/login')
-      .send({username: 'owlsketch', password: 'elpasswordodeowlsketch'})
-      .then(res => {
-        expect(res.statusCode).toBe(302)
-        expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-        expect(res.get('Location')).toBe('/users/owlsketch')
+  describe('Test signup form', () => {
+    describe('redirects to /signup on failed signup attempt', () => {
+      it('fails due to existing username', () => {
+        submission.email = 'uniqueEmail@owlsketch.com'
+        return request(app)
+          .post('/signup')
+          .send(submission)
+          .then(res => {
+            expect(res.statusCode).toBe(302)
+            expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+            expect(res.get('Location')).toBe('/signup')
+
+            submission.email = 'hello@owlsketch.com'
+          })
       })
+
+      it('fails due to existing email', () => {
+        submission.username = 'uniqueUser'
+        return request(app)
+          .post('/signup')
+          .send(submission)
+          .then(res => {
+            expect(res.statusCode).toBe(302)
+            expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+            expect(res.get('Location')).toBe('/signup')
+
+            submission.username = 'owlsketch'
+          })
+      })
+    })
+
+    it('redirects to user\'s page on successful signup', () => {
+      return request(app)
+        .post('/signup')
+        .send({ username: 'jouncelimb',
+          email: 'hello@jlimb.com',
+          password: 'elpasswordodeJLimb',
+          age: 23 })
+        .then(res => {
+          expect(res.statusCode).toBe(302)
+          expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+          expect(res.get('Location')).toBe('/users/jouncelimb')
+        })
+    })
   })
 })
 
 describe('Test paths with a session', () => {
   // /signup and /login should be inaccessible if
   // the user has logged in
-})
-
-describe('Test the logout path', () => {
-  it('redirects on GET method', () => {
-    return request(app)
-      .get('/logout')
-      .then(res => {
-        expect(res.statusCode).toBe(302)
-        expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-        expect(res.get('Location')).toBe('/')
-      })
-  })
 })

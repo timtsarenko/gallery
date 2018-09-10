@@ -13,10 +13,11 @@ The app is separated by concerns. Anything that directly concerns the server is 
 
 ```bash
 ├── index.js        # app starts here
-├── config          # contains configurations and setup for express, mongoose, and the environment
+├── config          # contains configs and setup for app, mongoose, and passport 
 ├── server          # code concerning the server
 │   ├── routes
-│   └── models
+│   ├── models 
+│   └── controllers 
 ├── client          # code/content concerning the client
 │   ├── css
 │   ├── img
@@ -60,6 +61,15 @@ if you want ESLint to automatically fix any problems it can automatically resolv
 ```
 $ npm run linter -s -- --fix
 ```
+
+## Testing
+Tests are handled by jest. Run with:
+```
+$ npm test
+```
+This will set a watch on all files and run tests on any files that have changed.
+
+Note: any tests that interact with out test DB will require internet connection to reach mLab where our DB lies.
 
 ## Deploying
 For deployment, ensure that the `NODE_ENV` variable in your .env file is set to production. Then build all your front-end files for production with:
