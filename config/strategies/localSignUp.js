@@ -15,7 +15,6 @@ module.exports = function () {
         if (err) { // non-unique cases will return an error here thanks to uniqueValidator
           return done(null, false, { message: err })
         }
-
         return done(null, newUser)
       })
     })

@@ -4,8 +4,11 @@ let session = require('express-session')
 let flash = require('connect-flash')
 let bodyParser = require('body-parser')
 
-module.exports = function (process, passport) {
-  let app = express()
+module.exports = function () {
+  let app = express() // start express app
+
+  require('./mongoose.js')() // create connection to DB
+  let passport = require('./passport.js')() // define passport strategies
 
   // static files and html
   app.use(express.static('./build'))

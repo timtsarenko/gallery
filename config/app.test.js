@@ -1,6 +1,10 @@
+require('dotenv').config()
+
 let request = require('supertest')
-let app = require('./index.js')
-let User = require('mongoose').model('User')
+
+let app = require('./app.js')()
+let mongoose = require('mongoose')
+let User = mongoose.model('User')
 
 describe('Test paths without a session', () => {
   it('responds on GET to \'/\'', () => {
@@ -62,15 +66,15 @@ describe('Test login form', () => {
 
     newUser.save(function (err) {
       if (err) {
-        return done(err)
+        done(err)
+      } else {
+        done()
       }
-      return done()
     })
   })
 
-  afterAll((done) => {
-    User.remove().exec()
-    return done()
+  afterAll(() => {
+    return User.remove().exec()
   })
 
   it('redirects to /login on failed login attempt', () => {
