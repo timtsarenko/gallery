@@ -1,4 +1,3 @@
-let path = require('path')
 let express = require('express')
 
 module.exports = function () {
@@ -6,9 +5,9 @@ module.exports = function () {
 
   router.get('/', function (req, res) {
     if (req.isAuthenticated()) {
-      res.redirect(`/users/${req.user.username}`)
+      res.send(404)
     } else {
-      res.sendFile(path.join(req.viewPath, 'index.html'))
+      res.send(401)
     }
   })
 

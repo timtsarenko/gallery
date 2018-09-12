@@ -6,7 +6,11 @@ module.exports = function () {
   let router = express.Router()
 
   router.get('/', function (req, res) {
-    res.sendFile(path.join(req.viewPath, 'signup.html'))
+    if (req.isAuthenticated()) {
+      res.redirect(`/users/${req.user.username}`)
+    } else {
+      res.sendFile(path.join(req.viewPath, 'signup.html'))
+    }
   })
 
   router.post('/',

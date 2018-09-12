@@ -3,8 +3,7 @@ require('dotenv').config()
 let request = require('supertest')
 
 let app = require('./app.js')()
-let mongoose = require('mongoose')
-let User = mongoose.model('User')
+let User = require('mongoose').model('User')
 
 describe('Test paths without a session', () => {
   it('responds on GET to \'/\'', () => {
@@ -173,6 +172,81 @@ describe('Test login and signup forms', () => {
 })
 
 describe('Test paths with a session', () => {
-  // /signup and /login should be inaccessible if
-  // the user has logged in
+  let agent = request.agent(app)
+
+  beforeAll((done) => {
+    let newUser = new User({
+      username: 'tea',
+      email: 'hello@tea.com',
+      password: 'elpasswordodetea',
+      age: 23
+    })
+
+    newUser.save(function (err) {
+      if (err) {
+        done(err)
+      } else { // once user exists, start a session
+        agent
+          .post('/login')
+          .send({username: 'tea', password: 'elpasswordodetea'})
+          .end((err, res) => {
+            if (err) { done(err) }
+            done()
+          })
+      }
+    })
+  })
+
+  afterAll(() => {
+    return User.remove().exec()
+  })
+
+  it('redirects to \'/user/:userid\' on GET to \'/\'', () => {
+    return agent
+      .get('/')
+      .then(res => {
+        expect(res.statusCode).toBe(302)
+        expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+        expect(res.get('Location')).toBe('/users/tea')
+      })
+  })
+
+  it('redirects to \'/user/:userid\' on GET to \'/login\'', () => {
+    return agent
+      .get('/login')
+      .then(res => {
+        expect(res.statusCode).toBe(302)
+        expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+        expect(res.get('Location')).toBe('/users/tea')
+      })
+  })
+
+  it('redirects to \'/user/:userid\' on GET to \'/signup\'', () => {
+    return agent
+      .get('/signup')
+      .then(res => {
+        expect(res.statusCode).toBe(302)
+        expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+        expect(res.get('Location')).toBe('/users/tea')
+      })
+  })
+
+  it('responds on GET to \'/users/:userid\'', () => {
+    return agent
+      .get('/users/tea')
+      .then(res => {
+        expect(res.statusCode).toBe(200)
+        expect(res.get('Content-Type')).toBe('text/html; charset=UTF-8')
+      })
+  })
+
+  it('redirects to \'/\' on GET to \'/logout\'', () => {
+    return agent
+      .get('/logout')
+      .then(res => {
+        expect(res.statusCode).toBe(302)
+        expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+        expect(res.get('Location')).toBe('/')
+      })
+  })
 })
