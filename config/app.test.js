@@ -1,66 +1,65 @@
 require('dotenv').config()
 
-let request = require('supertest')
-
 let app = require('./app.js')()
 let User = require('mongoose').model('User')
 
+let request = require('supertest')
+
+function getAndConfirm (request, path) {
+  return request
+    .get(path)
+    .then(res => {
+      expect(res.statusCode).toBe(200)
+      expect(res.get('Content-Type')).toBe('text/html; charset=UTF-8')
+    })
+}
+
+function getAndRedirects (request, path, destination) {
+  return request
+    .get(path)
+    .then(res => {
+      expect(res.statusCode).toBe(302)
+      expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+      expect(res.get('Location')).toBe(destination)
+    })
+}
+
+function postAndRedirects (request, path, form, destination, callback) {
+  return request
+    .post(path)
+    .send(form)
+    .then(res => {
+      expect(res.statusCode).toBe(302)
+      expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+      expect(res.get('Location')).toBe(destination)
+      callback()
+    })
+}
+
 describe('Test paths without a session', () => {
   it('responds on GET to \'/\'', () => {
-    return request(app)
-      .get('/')
-      .then(res => {
-        expect(res.get('Content-Type')).toBe('text/html; charset=UTF-8')
-        expect(res.statusCode).toBe(200)
-      })
+    return getAndConfirm(request(app), '/')
   })
 
   it('responds on GET to \'/login\'', () => {
-    return request(app)
-      .get('/login')
-      .then(res => {
-        expect(res.get('Content-Type')).toBe('text/html; charset=UTF-8')
-        expect(res.statusCode).toBe(200)
-      })
+    return getAndConfirm(request(app), '/login')
   })
 
   it('responds on GET to \'/signup\'', () => {
-    return request(app)
-      .get('/signup')
-      .then(res => {
-        expect(res.statusCode).toBe(200)
-        expect(res.get('Content-Type')).toBe('text/html; charset=UTF-8')
-      })
+    return getAndConfirm(request(app), '/signup')
   })
 
   it('redirects to \'/\' on GET to \'/users/:userid\'', () => {
-    return request(app)
-      .get('/users/owlsketch')
-      .then(res => {
-        expect(res.statusCode).toBe(302)
-        expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-        expect(res.get('Location')).toBe('/')
-      })
+    return getAndRedirects(request(app), '/users/owlsketch', '/')
   })
 
   // TODO: return only when user exists AND gallery exists
   it('responds on GET to \'/users/:userid/galleries/:gallerid\'', () => {
-    return request(app)
-      .get('/users/owlsketch/galleries/gal1')
-      .then(res => {
-        expect(res.statusCode).toBe(200)
-        expect(res.get('Content-Type')).toBe('text/html; charset=UTF-8')
-      })
+    return getAndConfirm(request(app), '/users/owlsketch/galleries/gal1')
   })
 
   it('redirects to \'/\' on GET to \'/logout\'', () => {
-    return request(app)
-      .get('/logout')
-      .then(res => {
-        expect(res.statusCode).toBe(302)
-        expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-        expect(res.get('Location')).toBe('/')
-      })
+    return getAndRedirects(request(app), '/logout', '/')
   })
 })
 
@@ -84,89 +83,83 @@ describe('Test login and signup forms', () => {
     })
   })
 
-  afterAll(() => {
-    return User.remove().exec()
+  afterAll((done) => {
+    // only remove data created for this set of tests
+    User.deleteMany({username: { $in: ['owlsketch', 'jouncelimb'] }}, (err) => {
+      if (err) {
+        done(err)
+      } else {
+        done()
+      }
+    })
   })
 
   describe('Test login form', () => {
     describe('redirects to /login on failed login attempt', () => {
-      it('fails due to non-existing user', () => {
-        return request(app)
-          .post('/login')
-          .send({username: 'nonExistingUser', password: 'nachocheese'})
-          .then(res => {
-            expect(res.statusCode).toBe(302)
-            expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-            expect(res.get('Location')).toBe('/login')
-          })
+      it('fails due to non-existing user', (done) => {
+        postAndRedirects(
+          request(app),
+          '/login',
+          { username: 'noExists', password: 'nachocheese' },
+          '/login',
+          done
+        )
       })
-      it('fails due to wrong password on existing user', () => {
-        return request(app)
-          .post('/login')
-          .send({username: 'owlsketch', password: 'nachocheese'})
-          .then(res => {
-            expect(res.statusCode).toBe(302)
-            expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-            expect(res.get('Location')).toBe('/login')
-          })
+
+      it('fails due to wrong password on existing user', (done) => {
+        postAndRedirects(
+          request(app),
+          '/login',
+          { username: 'owlsketch', password: 'nachocheese' },
+          '/login',
+          done
+        )
       })
     })
 
-    it('redirects to user\'s page on successful login', () => {
-      return request(app)
-        .post('/login')
-        .send({username: 'owlsketch', password: 'elpasswordodeowlsketch'})
-        .then(res => {
-          expect(res.statusCode).toBe(302)
-          expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-          expect(res.get('Location')).toBe('/users/owlsketch')
-        })
+    it('redirects to user\'s page on successful login', (done) => {
+      postAndRedirects(
+        request(app),
+        '/login',
+        { username: 'owlsketch', password: 'elpasswordodeowlsketch' },
+        '/users/owlsketch',
+        done
+      )
     })
   })
 
   describe('Test signup form', () => {
     describe('redirects to /signup on failed signup attempt', () => {
-      it('fails due to existing username', () => {
+      it('fails due to existing username', (done) => {
         submission.email = 'uniqueEmail@owlsketch.com'
-        return request(app)
-          .post('/signup')
-          .send(submission)
-          .then(res => {
-            expect(res.statusCode).toBe(302)
-            expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-            expect(res.get('Location')).toBe('/signup')
 
-            submission.email = 'hello@owlsketch.com'
-          })
+        postAndRedirects(request(app), '/signup', submission, '/signup', () => {
+          submission.email = 'hello@owlsketch.com'
+          done()
+        })
       })
 
-      it('fails due to existing email', () => {
+      it('fails due to existing email', (done) => {
         submission.username = 'uniqueUser'
-        return request(app)
-          .post('/signup')
-          .send(submission)
-          .then(res => {
-            expect(res.statusCode).toBe(302)
-            expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-            expect(res.get('Location')).toBe('/signup')
 
-            submission.username = 'owlsketch'
-          })
+        postAndRedirects(request(app), '/signup', submission, '/signup', () => {
+          submission.username = 'owlsketch'
+          done()
+        })
       })
     })
 
-    it('redirects to user\'s page on successful signup', () => {
-      return request(app)
-        .post('/signup')
-        .send({ username: 'jouncelimb',
-          email: 'hello@jlimb.com',
-          password: 'elpasswordodeJLimb',
-          age: 23 })
-        .then(res => {
-          expect(res.statusCode).toBe(302)
-          expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-          expect(res.get('Location')).toBe('/users/jouncelimb')
-        })
+    it('redirects to user\'s page on successful signup', (done) => {
+      let newSignUp = {
+        username: 'jouncelimb',
+        email: 'hello@jlimb.com',
+        password: 'elpasswordodeJLimb',
+        age: 23
+      }
+
+      postAndRedirects(request(app), '/signup', newSignUp, '/users/jouncelimb', () => {
+        done()
+      })
     })
   })
 })
@@ -197,56 +190,33 @@ describe('Test paths with a session', () => {
     })
   })
 
-  afterAll(() => {
-    return User.remove().exec()
+  afterAll((done) => {
+    User.deleteMany({username: 'tea'}, (err) => {
+      if (err) {
+        done(err)
+      } else {
+        done()
+      }
+    })
   })
 
   it('redirects to \'/user/:userid\' on GET to \'/\'', () => {
-    return agent
-      .get('/')
-      .then(res => {
-        expect(res.statusCode).toBe(302)
-        expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-        expect(res.get('Location')).toBe('/users/tea')
-      })
+    return getAndRedirects(agent, '/', '/users/tea')
   })
 
   it('redirects to \'/user/:userid\' on GET to \'/login\'', () => {
-    return agent
-      .get('/login')
-      .then(res => {
-        expect(res.statusCode).toBe(302)
-        expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-        expect(res.get('Location')).toBe('/users/tea')
-      })
+    return getAndRedirects(agent, '/login', '/users/tea')
   })
 
   it('redirects to \'/user/:userid\' on GET to \'/signup\'', () => {
-    return agent
-      .get('/signup')
-      .then(res => {
-        expect(res.statusCode).toBe(302)
-        expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-        expect(res.get('Location')).toBe('/users/tea')
-      })
+    return getAndRedirects(agent, '/signup', '/users/tea')
   })
 
   it('responds on GET to \'/users/:userid\'', () => {
-    return agent
-      .get('/users/tea')
-      .then(res => {
-        expect(res.statusCode).toBe(200)
-        expect(res.get('Content-Type')).toBe('text/html; charset=UTF-8')
-      })
+    return getAndConfirm(agent, '/users/tea')
   })
 
   it('redirects to \'/\' on GET to \'/logout\'', () => {
-    return agent
-      .get('/logout')
-      .then(res => {
-        expect(res.statusCode).toBe(302)
-        expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
-        expect(res.get('Location')).toBe('/')
-      })
+    return getAndRedirects(agent, '/logout', '/')
   })
 })
