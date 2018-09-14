@@ -9,6 +9,7 @@ module.exports = function (passport) {
   router.post('/',
     passport.authenticate('local-login', { failureRedirect: '/login', failureFlash: true }),
     function (req, res) {
+      res.cookie('username', req.user.username)
       res.redirect(`/users/${req.user.username}`)
     }
   )

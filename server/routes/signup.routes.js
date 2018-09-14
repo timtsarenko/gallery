@@ -15,7 +15,10 @@ module.exports = function () {
 
   router.post('/',
     passport.authenticate('local-signup', { failureRedirect: '/signup', failureFlash: true }),
-    function (req, res) { res.redirect(`/users/${req.user.username}`) }
+    function (req, res) {
+      res.cookie('username', req.user.username)
+      res.redirect(`/users/${req.user.username}`)
+    }
   )
 
   return router

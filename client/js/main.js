@@ -1,5 +1,4 @@
 import '../css/main.scss'
-import '../css/plain.css'
 
 import React from 'react'
 import ReactDOM from 'react-dom'
