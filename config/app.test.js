@@ -53,6 +53,10 @@ describe('Test paths without a session', () => {
     return getAndRedirects(request(app), '/users/owlsketch', '/')
   })
 
+  it('redirects to \'/\' on GET to \'/users/:userid/settings\'', () => {
+    return getAndRedirects(request(app), '/users/owlsketch/settings', '/')
+  })
+
   // TODO: return only when user exists AND gallery exists
   it('responds on GET to \'/users/:userid/galleries/:gallerid\'', () => {
     return getAndConfirm(request(app), '/users/owlsketch/galleries/gal1')
@@ -67,8 +71,7 @@ describe('Test login and signup forms', () => {
   let submission = {
     username: 'owlsketch',
     email: 'hello@owlsketch.com',
-    password: 'elpasswordodeowlsketch',
-    age: 23
+    password: 'elpasswordodeowlsketch'
   }
 
   beforeAll((done) => {
@@ -153,13 +156,10 @@ describe('Test login and signup forms', () => {
       let newSignUp = {
         username: 'jouncelimb',
         email: 'hello@jlimb.com',
-        password: 'elpasswordodeJLimb',
-        age: 23
+        password: 'elpasswordodeJLimb'
       }
 
-      postAndRedirects(request(app), '/signup', newSignUp, '/users/jouncelimb', () => {
-        done()
-      })
+      postAndRedirects(request(app), '/signup', newSignUp, '/users/jouncelimb', done)
     })
   })
 })
@@ -171,8 +171,7 @@ describe('Test paths with a session', () => {
     let newUser = new User({
       username: 'tea',
       email: 'hello@tea.com',
-      password: 'elpasswordodetea',
-      age: 23
+      password: 'elpasswordodetea'
     })
 
     newUser.save(function (err) {
@@ -214,6 +213,10 @@ describe('Test paths with a session', () => {
 
   it('responds on GET to \'/users/:userid\'', () => {
     return getAndConfirm(agent, '/users/tea')
+  })
+
+  it('responds on GET to \'/users/:userid/settings\'', () => {
+    return getAndConfirm(agent, '/users/tea/settings')
   })
 
   it('redirects to \'/\' on GET to \'/logout\'', () => {

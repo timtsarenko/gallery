@@ -1,11 +1,10 @@
 let path = require('path')
 
-exports.getLogin = function (req, res) {
-  // req.flash('error') contains our error message if failed to authenticate
+exports.getSignUp = function (req, res) {
   if (req.isAuthenticated()) {
     res.redirect(`/users/${req.user.username}`)
   } else {
-    res.sendFile(path.join(req.viewPath, 'login.html'))
+    res.sendFile(path.join(req.viewPath, 'signup.html'))
   }
 }
 

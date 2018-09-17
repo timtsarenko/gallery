@@ -12,7 +12,7 @@ module.exports = function (app, passport) {
   app.use('/', index())
 
   app.use('/login', login(passport))
-  app.use('/signup', signup())
+  app.use('/signup', signup(passport))
   app.use('/logout', logout())
 
   app.use('/users', users())

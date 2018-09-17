@@ -1,12 +1,10 @@
-let path = require('path')
 let express = require('express')
 
 module.exports = function () {
   let router = express.Router()
+  let controller = require('../controllers/galleries.controllers.js')
 
-  router.get('/:galleryId', function (req, res) {
-    res.sendFile(path.join(req.viewPath, 'gallery.html'))
-  })
+  router.get('/:galleryId', controller.getGallery)
 
   return router
 }

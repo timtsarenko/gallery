@@ -1,24 +1,14 @@
-let path = require('path')
 let express = require('express')
-let passport = require('passport')
 
-module.exports = function () {
+module.exports = function (passport) {
   let router = express.Router()
+  let controller = require('../controllers/signup.controllers.js')
 
-  router.get('/', function (req, res) {
-    if (req.isAuthenticated()) {
-      res.redirect(`/users/${req.user.username}`)
-    } else {
-      res.sendFile(path.join(req.viewPath, 'signup.html'))
-    }
-  })
+  router.get('/', controller.getSignUp)
 
   router.post('/',
     passport.authenticate('local-signup', { failureRedirect: '/signup', failureFlash: true }),
-    function (req, res) {
-      res.cookie('username', req.user.username)
-      res.redirect(`/users/${req.user.username}`)
-    }
+    controller.setupUser
   )
 
   return router

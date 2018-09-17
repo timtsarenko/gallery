@@ -26,8 +26,7 @@ describe('fetching /api/ data with authentication', () => {
     let newUser = new User({
       username: 'apitea',
       email: 'hello@apitea.com',
-      password: 'elpasswordodeapitea',
-      age: 23
+      password: 'elpasswordodeapitea'
     })
 
     newUser.save(function (err) {
@@ -65,7 +64,6 @@ describe('fetching /api/ data with authentication', () => {
         expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
         expect(data.username).toBe('apitea')
         expect(data.email).toBe('hello@apitea.com')
-        expect(data.age).toBe(23)
       })
   })
 

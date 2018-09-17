@@ -7,8 +7,7 @@ module.exports = function () {
       let newUser = new User({
         username: username,
         email: req.body.email,
-        password: password,
-        age: req.body.age
+        password: password
       })
 
       newUser.save(function (err) {
