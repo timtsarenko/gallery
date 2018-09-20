@@ -1,6 +1,6 @@
 let mongoose = require('mongoose')
 
-module.exports = function () {
+module.exports = function (callback) {
   const user = process.env.DB_USER
   const pwd = process.env.DB_PWD
 
@@ -22,6 +22,9 @@ module.exports = function () {
 
   mongoose.connection.on('connected', () => {
     console.log('+ mongoose default connection open')
+
+    // if we need to wait for connection to be established first, pass a callback
+    if (callback) { callback() }
   })
 
   mongoose.connection.on('disconnected', () => {

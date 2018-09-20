@@ -4,6 +4,7 @@ let User = require('mongoose').model('User')
 module.exports = function () {
   let strategy = new LocalStrategy({ passReqToCallback: true },
     function (req, username, password, done) {
+      // omit admin, otherwise user may pass a form with admin bool and that's no bueno
       let newUser = new User({
         username: username,
         email: req.body.email,
