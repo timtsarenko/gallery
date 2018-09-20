@@ -11,13 +11,13 @@ let User = require('mongoose').model('User')
 
 it('fails to fetch /api/ data for unauthenticated', () => {
   return request(app)
-    .get('/api/users')
+    .get('/api/users/apitea')
     .then(res => {
       expect(res.statusCode).toBe(401)
     })
 })
 
-describe('fetching /api/ data with authentication', () => {
+describe('CRUD operations on /api/ data with authentication', () => {
   // for the following tests, agents are authenticated
 
   let agent = request.agent(app)
@@ -45,7 +45,7 @@ describe('fetching /api/ data with authentication', () => {
   })
 
   afterAll((done) => {
-    User.deleteMany({username: 'apitea'}, (err) => {
+    User.deleteOne({username: 'apitea'}, (err) => {
       if (err) {
         done(err)
       } else {
@@ -54,24 +54,36 @@ describe('fetching /api/ data with authentication', () => {
     })
   })
 
-  it('returns user data for authorized user', () => {
-    return agent
-      .get('/api/users/apitea')
-      .then(res => {
-        let data = JSON.parse(res.text)
-
-        expect(res.statusCode).toBe(200)
-        expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
-        expect(data.username).toBe('apitea')
-        expect(data.email).toBe('hello@apitea.com')
-      })
-  })
-
-  it('fails to return user data for unauthorized user', () => {
+  it('fails to fetch /api/ data for unauthorized user', () => {
     return agent
       .get('/api/users/othertea')
       .then(res => {
         expect(res.statusCode).toBe(401)
       })
+  })
+
+  describe('CRUD operations on /api/ data with authorization', () => {
+    // [USER]
+    it('gets user data', () => {
+      return agent
+        .get('/api/users/apitea')
+        .then(res => {
+          let data = JSON.parse(res.text)
+
+          expect(res.statusCode).toBe(200)
+          expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
+          expect(data.username).toBe('apitea')
+          expect(data.email).toBe('hello@apitea.com')
+        })
+    })
+
+    it.skip('updates user data', () => {
+      let form = { email: 'hola@apitea.com' }
+      return agent
+        .put('/api/users/apitea')
+        .send(form)
+        .then(res => {
+        })
+    })
   })
 })

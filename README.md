@@ -21,8 +21,10 @@ The app is separated by concerns. Anything that directly concerns the server is 
 ├── client          # code/content concerning the client
 │   ├── css
 │   ├── img
-│   ├── js          # contains the React components 
+│   ├── js
+│   ├── react
 │   └── views
+├── scripts         # standalone scripts for dev uses 
 └── build           # compiled files
 ```
 
