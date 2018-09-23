@@ -22,7 +22,7 @@ describe('CRUD operations on /api/ data with authentication', () => {
 
   let agent = request.agent(app)
 
-  beforeAll((done) => {
+  beforeAll(done => {
     let newUser = new User({
       username: 'apitea',
       email: 'hello@apitea.com',
@@ -60,6 +60,33 @@ describe('CRUD operations on /api/ data with authentication', () => {
       .then(res => {
         expect(res.statusCode).toBe(401)
       })
+  })
+
+  describe('Admin priviledges', () => {
+    let admin = request.agent(app)
+
+    beforeAll(done => {
+      admin
+        .post('/login')
+        .send({username: 'admin', password: 'admin'})
+        .end((err, res) => {
+          if (err) { done(err) }
+          done()
+        })
+    })
+
+    it('gets unrelated user\'s data', () => {
+      return admin 
+        .get('/api/users/apitea')
+        .then(res => {
+          let data = JSON.parse(res.text)
+
+          expect(res.statusCode).toBe(200)
+          expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
+          expect(data.username).toBe('apitea')
+          expect(data.email).toBe('hello@apitea.com')
+        })
+    })
   })
 
   describe('CRUD operations on /api/ data with authorization', () => {
