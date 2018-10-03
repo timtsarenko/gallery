@@ -40,17 +40,9 @@ function postAndRedirects (request, path, form, destination, callback) {
 }
 
 describe('Test paths without a session', () => {
-  it('responds on GET to \'/\'', () => {
-    return getAndConfirm(request(app), '/')
-  })
-
-  it('responds on GET to \'/login\'', () => {
-    return getAndConfirm(request(app), '/login')
-  })
-
-  it('responds on GET to \'/signup\'', () => {
-    return getAndConfirm(request(app), '/signup')
-  })
+  it('responds on GET to \'/\'', () => getAndConfirm(request(app), '/'))
+  it('responds on GET to \'/login\'', () => getAndConfirm(request(app), '/login'))
+  it('responds on GET to \'/signup\'', () => getAndConfirm(request(app), '/signup'))
 
   it('redirects to \'/\' on GET to \'/users/:userid\'', () => {
     return getAndRedirects(request(app), '/users/owlsketch', '/')
@@ -77,26 +69,15 @@ describe('Test login and signup forms', () => {
     password: 'elpasswordodeowlsketch'
   }
 
-  beforeAll((done) => {
+  beforeAll(done => {
     let newUser = new User(submission)
-
-    newUser.save(function (err) {
-      if (err) {
-        done(err)
-      } else {
-        done()
-      }
-    })
+    newUser.save(err => err ? done(err) : done())
   })
 
-  afterAll((done) => {
+  afterAll(done => {
     // only remove data created for this set of tests
-    User.deleteMany({username: { $in: ['owlsketch', 'jouncelimb'] }}, (err) => {
-      if (err) {
-        done(err)
-      } else {
-        done()
-      }
+    User.deleteMany({username: { $in: ['owlsketch', 'jouncelimb'] }}, err => {
+      err ? done(err) : done()
     })
   })
 
@@ -179,21 +160,14 @@ describe('Test paths with a session', () => {
         agent
           .post('/login')
           .send({username: 'tea', password: 'elpasswordodetea'})
-          .end((err, res) => {
-            if (err) { done(err) }
-            done()
-          })
+          .end((err, res) => err ? done(err) : done())
       }
     })
   })
 
   afterAll((done) => {
     User.deleteMany({username: 'tea'}, (err) => {
-      if (err) {
-        done(err)
-      } else {
-        done()
-      }
+      err ? done(err) : done()
     })
   })
 

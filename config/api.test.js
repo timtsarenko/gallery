@@ -86,10 +86,7 @@ describe('CRUD operations on /api/ data with authentication', () => {
         agent
           .post('/login')
           .send({username: 'apitea', password: 'elpasswordodeapitea'})
-          .end((err, res) => {
-            if (err) { done(err) }
-            done()
-          })
+          .end((err, res) => err ? done(err) : done())
       }
     })
   })
@@ -131,7 +128,7 @@ describe('CRUD operations on /api/ data with authentication', () => {
     })
 
     it('fails to update data if not unique', () => {
-      let form = { email: 'admin@laika.gallery' }
+      let form = { email: 'dynamik@laika.gallery' }
       return agent
         .put('/api/users/apitea')
         .send(form)
@@ -166,13 +163,27 @@ describe('CRUD operations on /api/ data with authentication', () => {
     let admin = request.agent(app)
 
     beforeAll(done => {
-      admin
-        .post('/login')
-        .send({username: 'admin', password: 'admin'})
-        .end((err, res) => {
-          if (err) { done(err) }
-          done()
-        })
+      let newUser = new User({
+        username: 'admin',
+        email: 'admin@laika.gallery',
+        password: 'admin',
+        admin: true
+      })
+
+      newUser.save(function (err) {
+        if (err) {
+          done(err)
+        } else { // once user exists, start a session
+          admin
+            .post('/login')
+            .send({username: 'admin', password: 'admin'})
+            .end((err, res) => err ? done(err) : done())
+        }
+      })
+    })
+
+    afterAll(done => {
+      User.deleteOne({ username: 'admin' }, err => err ? done(err) : done())
     })
 
     it('gets the data for all users', () => {
@@ -182,8 +193,7 @@ describe('CRUD operations on /api/ data with authentication', () => {
           expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
 
           let data = JSON.parse(res.text)
-          expect(data[0].username).toBe('admin')
-          expect(data[1].username).toBe('dynamik')
+          expect(data.length).not.toBeLessThan(2)
         })
     })
 
