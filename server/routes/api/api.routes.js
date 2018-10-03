@@ -6,11 +6,6 @@ let users = require('./users.routes.js')
 module.exports = function () {
   let router = express.Router()
 
-  // only authenticated visitors may access api
-  router.all('/*', function (req, res, next) {
-    req.isAuthenticated() ? next() : res.send(401)
-  })
-
   router.use('/users', users())
   // router.use('/galleries', galleries())
   // router.use('/artworks', artworks()

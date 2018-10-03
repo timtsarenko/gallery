@@ -4,16 +4,14 @@ module.exports = function () {
   let router = express.Router()
   let controller = require('../../controllers/api/users.controllers.js')
 
-  //router.use('/', controller.adminOnly)
-  router.get('/', controller.adminOnly, controller.getUsers)
-  // router.put('/', controller.updateUsers)
+  // [USERS]
+  router.get('/', controller.adminOnly, controller.readUsers)
 
-  // Should post router be called
-  // from our SignUp passport strategy?
-
-  //router.use('/:userId', controller.authorizedOnly)
-  router.get('/:userId', controller.allowAuthorized, controller.getUser)
-  // router.put('/:userId', controller.updateUser)
+  // [USER]
+  router.post('/:userId', controller.createUser)
+  router.get('/:userId', controller.allowAuthorized, controller.readUser)
+  router.put('/:userId', controller.allowAuthorized, controller.updateUser)
+  router.delete('/:userId', controller.allowAuthorized, controller.deleteUser)
 
   return router
 }

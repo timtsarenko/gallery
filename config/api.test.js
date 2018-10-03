@@ -9,12 +9,73 @@ let User = require('mongoose').model('User')
 // authenticated: user has been verified
 // authorized: user has permission to access the requested data
 
-it('fails to fetch /api/ data for unauthenticated', () => {
-  return request(app)
-    .get('/api/users/apitea')
-    .then(res => {
-      expect(res.statusCode).toBe(401)
+describe('API actions without authentication', () => {
+  afterAll((done) => {
+    User.deleteOne({username: 'dynamik'}, (err) => {
+      if (err) {
+        done(err)
+      } else {
+        done()
+      }
     })
+  })
+
+  it('creates a new user if form is correct', () => {
+    let form = {
+      username: 'dynamik',
+      email: 'dynamik@apitea.com',
+      password: 'elpasswordodedynamik'
+    }
+
+    return request(app)
+      .post('/api/users/dynamik')
+      .send(form)
+      .then(res => {
+        expect(res.statusCode).toBe(200)
+        expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
+
+        let data = JSON.parse(res.text)
+        expect(data.username).toBe('dynamik')
+        expect(data.email).toBe('dynamik@apitea.com')
+      })
+  })
+
+  it('fails to create a new user if form is missing content', () => {
+    let form = {
+      username: 'wrongo',
+      password: 'elpasswordodewrongo'
+    }
+
+    return request(app)
+      .post('/api/users/wrongo')
+      .send(form)
+      .then(res => {
+        expect(res.statusCode).toBe(400)
+      })
+  })
+
+  it('fails to create a user if lacks unique content', () => {
+    let form = {
+      username: 'dynamik',
+      email: 'dynamik@apitea.com',
+      password: 'elpasswordodedynamik'
+    }
+
+    return request(app)
+      .post('/api/users/dynamik')
+      .send(form)
+      .then(res => {
+        expect(res.statusCode).toBe(400)
+      })
+  })
+
+  it('fails to fetch /api/ data', () => {
+    return request(app)
+      .get('/api/users/apitea')
+      .then(res => {
+        expect(res.statusCode).toBe(401)
+      })
+  })
 })
 
 describe('CRUD operations on /api/ data with authentication', () => {
@@ -62,6 +123,62 @@ describe('CRUD operations on /api/ data with authentication', () => {
       })
   })
 
+  describe('CRUD operations on /api/ data with authorization', () => {
+    // [USER]
+    it('gets user data', () => {
+      return agent
+        .get('/api/users/apitea')
+        .then(res => {
+          expect(res.statusCode).toBe(200)
+          expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
+
+          let data = JSON.parse(res.text)
+          expect(data.username).toBe('apitea')
+          expect(data.email).toBe('hello@apitea.com')
+        })
+    })
+
+    it('updates user data', () => {
+      let form = { email: 'hola@apitea.com' }
+      return agent
+        .put('/api/users/apitea')
+        .send(form)
+        .then(res => {
+          expect(res.statusCode).toBe(200)
+          expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
+
+          let data = JSON.parse(res.text)
+          expect(data.username).toBe('apitea')
+          expect(data.email).toBe('hola@apitea.com')
+        })
+    })
+
+    it('fails to update data if not unique', () => {
+      let form = { email: 'admin@apitea.com' }
+      return agent
+        .put('/api/users/apitea')
+        .send(form)
+        .then(res => {
+          expect(res.statusCode).toBe(200)
+          expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
+
+          let data = JSON.parse(res.text)
+          expect(data._message).toBe('Validation failed')
+        })
+    })
+
+    it('fails to update data if it requires admin priviledge', () => {
+      let form = { admin: true }
+      return agent
+        .put('/api/users/apitea')
+        .send(form)
+        .then(res => {
+          expect(res.statusCode).toBe(401)
+          expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+        })
+    })
+  })
+
   describe('Admin priviledges', () => {
     let admin = request.agent(app)
 
@@ -75,41 +192,44 @@ describe('CRUD operations on /api/ data with authentication', () => {
         })
     })
 
+    it('gets all the user\'s data', () => {
+      return admin
+        .get('/api/users')
+        .then(res => {
+          expect(res.statusCode).toBe(200)
+          expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
+
+          let data = JSON.parse(res.text)
+          expect(data[0].username).toBe('admin')
+          expect(data[1].username).toBe('apitea')
+        })
+    })
+
     it('gets unrelated user\'s data', () => {
-      return admin 
+      return admin
         .get('/api/users/apitea')
         .then(res => {
-          let data = JSON.parse(res.text)
-
           expect(res.statusCode).toBe(200)
           expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
-          expect(data.username).toBe('apitea')
-          expect(data.email).toBe('hello@apitea.com')
-        })
-    })
-  })
 
-  describe('CRUD operations on /api/ data with authorization', () => {
-    // [USER]
-    it('gets user data', () => {
-      return agent
-        .get('/api/users/apitea')
-        .then(res => {
           let data = JSON.parse(res.text)
-
-          expect(res.statusCode).toBe(200)
-          expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
           expect(data.username).toBe('apitea')
-          expect(data.email).toBe('hello@apitea.com')
+          expect(data.email).toBe('hola@apitea.com')
         })
     })
 
-    it.skip('updates user data', () => {
-      let form = { email: 'hola@apitea.com' }
-      return agent
+    it('updates user\'s data, even if it requires admin priviledge', () => {
+      let form = { admin: true, email: 'welcome@apitea.com' }
+      return admin
         .put('/api/users/apitea')
         .send(form)
         .then(res => {
+          expect(res.statusCode).toBe(200)
+          expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
+
+          let data = JSON.parse(res.text)
+          expect(data.admin).toBe(true)
+          expect(data.email).toBe('welcome@apitea.com')
         })
     })
   })
