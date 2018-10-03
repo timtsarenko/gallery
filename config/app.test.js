@@ -5,22 +5,25 @@ let User = require('mongoose').model('User')
 
 let request = require('supertest')
 
-function getAndConfirm (request, path) {
+// optional callback is in case we wish to test additional expectations
+function getAndConfirm (request, path, callback) {
   return request
     .get(path)
     .then(res => {
       expect(res.statusCode).toBe(200)
       expect(res.get('Content-Type')).toBe('text/html; charset=UTF-8')
+      if (!(callback == null)) { callback() }
     })
 }
 
-function getAndRedirects (request, path, destination) {
+function getAndRedirects (request, path, destination, callback) {
   return request
     .get(path)
     .then(res => {
       expect(res.statusCode).toBe(302)
       expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
       expect(res.get('Location')).toBe(destination)
+      if (!(callback == null)) { callback() }
     })
 }
 
@@ -32,7 +35,7 @@ function postAndRedirects (request, path, form, destination, callback) {
       expect(res.statusCode).toBe(302)
       expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
       expect(res.get('Location')).toBe(destination)
-      callback()
+      if (!(callback == null)) { callback() }
     })
 }
 
@@ -99,67 +102,62 @@ describe('Test login and signup forms', () => {
 
   describe('Test login form', () => {
     describe('redirects to /login on failed login attempt', () => {
-      it('fails due to non-existing user', (done) => {
-        postAndRedirects(
+      it('fails due to non-existing user', () => {
+        return postAndRedirects(
           request(app),
           '/login',
           { username: 'noExists', password: 'nachocheese' },
-          '/login',
-          done
+          '/login'
         )
       })
 
-      it('fails due to wrong password on existing user', (done) => {
-        postAndRedirects(
+      it('fails due to wrong password on existing user', () => {
+        return postAndRedirects(
           request(app),
           '/login',
           { username: 'owlsketch', password: 'nachocheese' },
-          '/login',
-          done
+          '/login'
         )
       })
     })
 
-    it('redirects to user\'s page on successful login', (done) => {
-      postAndRedirects(
+    it('redirects to user\'s page on successful login', () => {
+      return postAndRedirects(
         request(app),
         '/login',
         { username: 'owlsketch', password: 'elpasswordodeowlsketch' },
-        '/users/owlsketch',
-        done
+        '/users/owlsketch'
       )
     })
   })
 
   describe('Test signup form', () => {
     describe('redirects to /signup on failed signup attempt', () => {
-      it('fails due to existing username', (done) => {
+      it('fails due to existing username', () => {
         submission.email = 'uniqueEmail@owlsketch.com'
 
-        postAndRedirects(request(app), '/signup', submission, '/signup', () => {
+        return postAndRedirects(request(app), '/signup', submission, '/signup', () => {
           submission.email = 'hello@owlsketch.com'
-          done()
         })
       })
 
-      it('fails due to existing email', (done) => {
+      it('fails due to existing email', () => {
         submission.username = 'uniqueUser'
 
-        postAndRedirects(request(app), '/signup', submission, '/signup', () => {
+        return postAndRedirects(request(app), '/signup', submission, '/signup', () => {
           submission.username = 'owlsketch'
-          done()
         })
       })
     })
 
-    it('redirects to user\'s page on successful signup', (done) => {
+    it('redirects to user\'s page on successful signup', () => {
       let newSignUp = {
         username: 'jouncelimb',
         email: 'hello@jlimb.com',
         password: 'elpasswordodeJLimb'
       }
 
-      postAndRedirects(request(app), '/signup', newSignUp, '/users/jouncelimb', done)
+      postAndRedirects(request(app), '/signup', newSignUp, '/users/jouncelimb')
     })
   })
 })

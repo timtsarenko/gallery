@@ -74,5 +74,8 @@ exports.updateUser = function (req, res) {
 }
 
 exports.deleteUser = function (req, res) {
-
+  User.deleteOne({ username: req.params.userId }, function (err) {
+    if (err) { res.json(err) }
+    res.send(200)
+  })
 }

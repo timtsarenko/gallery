@@ -10,20 +10,10 @@ let User = require('mongoose').model('User')
 // authorized: user has permission to access the requested data
 
 describe('API actions without authentication', () => {
-  afterAll((done) => {
-    User.deleteOne({username: 'dynamik'}, (err) => {
-      if (err) {
-        done(err)
-      } else {
-        done()
-      }
-    })
-  })
-
   it('creates a new user if form is correct', () => {
     let form = {
       username: 'dynamik',
-      email: 'dynamik@apitea.com',
+      email: 'dynamik@laika.gallery',
       password: 'elpasswordodedynamik'
     }
 
@@ -31,12 +21,11 @@ describe('API actions without authentication', () => {
       .post('/api/users/dynamik')
       .send(form)
       .then(res => {
-        expect(res.statusCode).toBe(200)
         expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
 
         let data = JSON.parse(res.text)
         expect(data.username).toBe('dynamik')
-        expect(data.email).toBe('dynamik@apitea.com')
+        expect(data.email).toBe('dynamik@laika.gallery')
       })
   })
 
@@ -57,7 +46,7 @@ describe('API actions without authentication', () => {
   it('fails to create a user if lacks unique content', () => {
     let form = {
       username: 'dynamik',
-      email: 'dynamik@apitea.com',
+      email: 'dynamik@laika.gallery',
       password: 'elpasswordodedynamik'
     }
 
@@ -86,7 +75,7 @@ describe('CRUD operations on /api/ data with authentication', () => {
   beforeAll(done => {
     let newUser = new User({
       username: 'apitea',
-      email: 'hello@apitea.com',
+      email: 'hello@laika.gallery',
       password: 'elpasswordodeapitea'
     })
 
@@ -105,16 +94,6 @@ describe('CRUD operations on /api/ data with authentication', () => {
     })
   })
 
-  afterAll((done) => {
-    User.deleteOne({username: 'apitea'}, (err) => {
-      if (err) {
-        done(err)
-      } else {
-        done()
-      }
-    })
-  })
-
   it('fails to fetch /api/ data for unauthorized user', () => {
     return agent
       .get('/api/users/othertea')
@@ -129,37 +108,34 @@ describe('CRUD operations on /api/ data with authentication', () => {
       return agent
         .get('/api/users/apitea')
         .then(res => {
-          expect(res.statusCode).toBe(200)
           expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
 
           let data = JSON.parse(res.text)
           expect(data.username).toBe('apitea')
-          expect(data.email).toBe('hello@apitea.com')
+          expect(data.email).toBe('hello@laika.gallery')
         })
     })
 
     it('updates user data', () => {
-      let form = { email: 'hola@apitea.com' }
+      let form = { email: 'hola@laika.gallery' }
       return agent
         .put('/api/users/apitea')
         .send(form)
         .then(res => {
-          expect(res.statusCode).toBe(200)
           expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
 
           let data = JSON.parse(res.text)
           expect(data.username).toBe('apitea')
-          expect(data.email).toBe('hola@apitea.com')
+          expect(data.email).toBe('hola@laika.gallery')
         })
     })
 
     it('fails to update data if not unique', () => {
-      let form = { email: 'admin@apitea.com' }
+      let form = { email: 'admin@laika.gallery' }
       return agent
         .put('/api/users/apitea')
         .send(form)
         .then(res => {
-          expect(res.statusCode).toBe(200)
           expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
 
           let data = JSON.parse(res.text)
@@ -167,19 +143,26 @@ describe('CRUD operations on /api/ data with authentication', () => {
         })
     })
 
-    it('fails to update data if it requires admin priviledge', () => {
+    it('fails to update data if it requires admin privilege', () => {
       let form = { admin: true }
       return agent
         .put('/api/users/apitea')
         .send(form)
         .then(res => {
           expect(res.statusCode).toBe(401)
-          expect(res.get('Content-Type')).toBe('text/plain; charset=utf-8')
+        })
+    })
+
+    it('deletes user if request is for self', () => {
+      return agent
+        .delete('/api/users/apitea')
+        .then(res => {
+          expect(res.statusCode).toBe(200)
         })
     })
   })
 
-  describe('Admin priviledges', () => {
+  describe('Admin privileges', () => {
     let admin = request.agent(app)
 
     beforeAll(done => {
@@ -192,44 +175,49 @@ describe('CRUD operations on /api/ data with authentication', () => {
         })
     })
 
-    it('gets all the user\'s data', () => {
+    it('gets the data for all users', () => {
       return admin
         .get('/api/users')
         .then(res => {
-          expect(res.statusCode).toBe(200)
           expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
 
           let data = JSON.parse(res.text)
           expect(data[0].username).toBe('admin')
-          expect(data[1].username).toBe('apitea')
+          expect(data[1].username).toBe('dynamik')
         })
     })
 
     it('gets unrelated user\'s data', () => {
       return admin
-        .get('/api/users/apitea')
+        .get('/api/users/dynamik')
         .then(res => {
-          expect(res.statusCode).toBe(200)
           expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
 
           let data = JSON.parse(res.text)
-          expect(data.username).toBe('apitea')
-          expect(data.email).toBe('hola@apitea.com')
+          expect(data.username).toBe('dynamik')
+          expect(data.email).toBe('dynamik@laika.gallery')
         })
     })
 
-    it('updates user\'s data, even if it requires admin priviledge', () => {
-      let form = { admin: true, email: 'welcome@apitea.com' }
+    it('updates user\'s data, even if it requires admin privilege', () => {
+      let form = { admin: true, email: 'welcome@laika.gallery' }
       return admin
-        .put('/api/users/apitea')
+        .put('/api/users/dynamik')
         .send(form)
         .then(res => {
-          expect(res.statusCode).toBe(200)
           expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
 
           let data = JSON.parse(res.text)
           expect(data.admin).toBe(true)
-          expect(data.email).toBe('welcome@apitea.com')
+          expect(data.email).toBe('welcome@laika.gallery')
+        })
+    })
+
+    it('can delete any user', () => {
+      return admin
+        .delete('/api/users/dynamik')
+        .then(res => {
+          expect(res.statusCode).toBe(200)
         })
     })
   })
