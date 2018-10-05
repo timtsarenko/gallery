@@ -13,6 +13,7 @@ module.exports = function () {
   // retrieve user info from user.id in session
   passport.deserializeUser(function (id, done) {
     User.findById(id, function (err, user) {
+      // err and user passed on to be handled accordingly
       done(err, user)
     })
   })

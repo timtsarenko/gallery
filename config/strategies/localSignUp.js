@@ -12,8 +12,10 @@ module.exports = function () {
       })
 
       newUser.save(function (err) {
-        if (err) { // non-unique cases will return an error here thanks to uniqueValidator
-          return done(null, false, { message: err })
+        if (err) {
+          // if validation error due to non-unique value: return as flash message
+          return !(err.name == null) && err.name === 'ValidationError'
+            ? done(null, false, { message: err.message }) : done(err)
         }
         return done(null, newUser)
       })

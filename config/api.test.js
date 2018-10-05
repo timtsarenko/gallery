@@ -133,10 +133,7 @@ describe('CRUD operations on /api/ data with authentication', () => {
         .put('/api/users/apitea')
         .send(form)
         .then(res => {
-          expect(res.get('Content-Type')).toBe('application/json; charset=utf-8')
-
-          let data = JSON.parse(res.text)
-          expect(data._message).toBe('Validation failed')
+          expect(res.statusCode).toBe(400)
         })
     })
 

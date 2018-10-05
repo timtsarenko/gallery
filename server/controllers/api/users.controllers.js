@@ -15,10 +15,9 @@ exports.adminOnly = function (req, res, next) {
 }
 
 // [USERS]
-exports.readUsers = function (req, res) {
+exports.readUsers = function (req, res, next) {
   User.find({}, 'username email admin', { lean: true }, function (err, users) {
-    if (err) { return err }
-    res.json(users)
+    err ? next(err) : res.json(users)
   })
 }
 
@@ -26,11 +25,11 @@ exports.readUsers = function (req, res) {
 //
 // Don't allow admin to be set through user creation
 // only an admin may update a user to admin afterwards
-exports.createUser = function (req, res) {
+exports.createUser = function (req, res, next) {
   let form = req.body
 
   if (form.username == null || form.email == null || form.password == null) {
-    res.send(400)
+    res.send(400) // due to bad request
   } else {
     let newUser = new User({
       username: form.username,
@@ -39,43 +38,49 @@ exports.createUser = function (req, res) {
     })
 
     newUser.save(function (err) {
-      err ? res.send(400) : res.json(newUser)
+      if (err) {
+        !(err.name == null) && err.name === 'ValidationError'
+          ? res.send(400) : next(err)
+      } else {
+        res.json(newUser)
+      }
     })
   }
 }
 
-exports.readUser = function (req, res) {
+exports.readUser = function (req, res, next) {
   User.findOne(
     { username: req.params.userId },
     'username email admin',
     { lean: true },
-    function (err, user) {
-      if (err) { return err }
-      res.json(user)
-    }
+    (err, user) => { err ? next(err) : res.json(user) }
   )
 }
 
-exports.updateUser = function (req, res) {
+exports.updateUser = function (req, res, next) {
   let query = User.findOneAndUpdate(
     { username: req.params.userId },
     { $set: req.body },
     { new: true, runValidators: true, context: 'query' }
   )
 
+  // execute if admin parameter not included, or it is and action done by an admin
   if (req.body.admin == null || (req.body.admin && req.user.admin)) {
-    query.exec(function (err, user) {
-      if (err) { res.json(err) }
-      res.json(user)
+    query.exec((err, user) => {
+      if (err) {
+        !(err.name == null) && err.name === 'ValidationError'
+          ? res.send(400) : next(err)
+      } else {
+        res.json(user)
+      }
     })
   } else {
     res.send(401)
   }
 }
 
-exports.deleteUser = function (req, res) {
+exports.deleteUser = function (req, res, next) {
   User.deleteOne({ username: req.params.userId }, function (err) {
-    if (err) { res.json(err) }
-    res.send(200)
+    err ? next(err) : res.send(200)
   })
 }
