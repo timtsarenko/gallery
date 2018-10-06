@@ -18,7 +18,7 @@ class Temp extends React.Component {
     if (result.length > 1) {
       window.fetch(`/api/users/${result[1]}`, { method: 'get', credentials: 'include' })
         .then(response => { return response.json() })
-        .then(json => { this.setState({username: json.username}) })
+        .then(json => { this.setState({ username: json.username }) })
     }
   }
 

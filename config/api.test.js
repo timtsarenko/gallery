@@ -85,7 +85,7 @@ describe('CRUD operations on /api/ data with authentication', () => {
       } else { // once user exists, start a session
         agent
           .post('/login')
-          .send({username: 'apitea', password: 'elpasswordodeapitea'})
+          .send({ username: 'apitea', password: 'elpasswordodeapitea' })
           .end((err, res) => err ? done(err) : done())
       }
     })
@@ -173,7 +173,7 @@ describe('CRUD operations on /api/ data with authentication', () => {
         } else { // once user exists, start a session
           admin
             .post('/login')
-            .send({username: 'admin', password: 'admin'})
+            .send({ username: 'admin', password: 'admin' })
             .end((err, res) => err ? done(err) : done())
         }
       })

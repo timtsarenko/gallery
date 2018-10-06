@@ -5,10 +5,11 @@ let bcrypt = require('bcryptjs')
 
 let UserSchema = new Schema(
   {
-    username: {type: String, required: true, unique: true, uniqueCaseInsensitive: true},
-    email: {type: String, required: true, unique: true, uniqueCaseInsensitive: true},
-    passwordHash: {type: String, required: true},
-    admin: {type: Boolean, default: false}
+    username: { type: String, required: true, unique: true, uniqueCaseInsensitive: true },
+    email: { type: String, required: true, unique: true, uniqueCaseInsensitive: true },
+    passwordHash: { type: String, required: true },
+    admin: { type: Boolean, default: false },
+    galleries: [{ type: Schema.Types.ObjectId, ref: 'Gallery' }]
   }
 )
 

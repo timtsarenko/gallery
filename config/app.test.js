@@ -76,7 +76,7 @@ describe('Test login and signup forms', () => {
 
   afterAll(done => {
     // only remove data created for this set of tests
-    User.deleteMany({username: { $in: ['owlsketch', 'jouncelimb'] }}, err => {
+    User.deleteMany({ username: { $in: ['owlsketch', 'jouncelimb'] } }, err => {
       err ? done(err) : done()
     })
   })
@@ -159,14 +159,14 @@ describe('Test paths with a session', () => {
       } else { // once user exists, start a session
         agent
           .post('/login')
-          .send({username: 'tea', password: 'elpasswordodetea'})
+          .send({ username: 'tea', password: 'elpasswordodetea' })
           .end((err, res) => err ? done(err) : done())
       }
     })
   })
 
   afterAll((done) => {
-    User.deleteMany({username: 'tea'}, (err) => {
+    User.deleteMany({ username: 'tea' }, (err) => {
       err ? done(err) : done()
     })
   })
